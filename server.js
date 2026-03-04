@@ -11,7 +11,7 @@ let invoiceCounter = 1;
 app.use(bodyParser.json());
 app.use(express.static("public"));
 
-app.post("/generate", (req, res) => {
+app.post("/api/invoice", (req, res) => {
   
   const invoiceNumber = `INV-${String(invoiceCounter++).padStart(4, '0')}`;
   const { name, client, description, amount } = req.body;
@@ -39,5 +39,5 @@ app.post("/generate", (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log("Server running on port " + PORT);
 });
