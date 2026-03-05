@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InvoiceKit — Professional Invoices in Seconds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --ink:       #0B1120;
+      --ink-soft:  #3D4A63;
+      --ink-faint: #8492A6;
+      --sky:       #1A56DB;
+      --sky-light: #EFF6FF;
+      --gold:      #F59E0B;
+      --white:     #FFFFFF;
+      --surface:   #F7F9FC;
+      --border:    #E2E8F2;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--white);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    /* ── typography ── */
+    .display {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-optical-sizing: auto;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+    .display-italic {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+    }
+
+    /* ── grid texture ── */
+    .grid-bg {
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* ── noise overlay ── */
+    .noise::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    /* ── animated gradient blob ── */
+    .blob {
+      position: absolute;
+      border-radius: 9999px;
+      filter: blur(80px);
+      opacity: 0.18;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, -40px) scale(1.08); }
+    }
+
+    /* ── invoice mockup ── */
+    .invoice-card {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow:
+        0 0 0 1px rgba(26,86,219,0.08),
+        0 24px 64px -12px rgba(11,17,32,0.22),
+        0 8px 24px -4px rgba(11,17,32,0.1);
+      transform: perspective(1200px) rotateY(-6deg) rotateX(3deg);
+      transition: transform 0.6s ease;
+    }
+    .invoice-card:hover {
+      transform: perspective(1200px) rotateY(-2deg) rotateX(1deg);
+    }
+
+    /* ── feature card ── */
+    .feat-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--white);
+      transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
+    }
+    .feat-card:hover {
+      box-shadow: 0 12px 40px -8px rgba(26,86,219,0.14);
+      transform: translateY(-3px);
+      border-color: rgba(26,86,219,0.3);
+    }
+
+    /* ── pricing card ── */
+    .price-card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--white);
+      transition: box-shadow 0.3s, transform 0.3s;
+    }
+    .price-card:hover {
+      box-shadow: 0 20px 60px -12px rgba(26,86,219,0.16);
+      transform: translateY(-4px);
+    }
+    .price-card.featured {
+      border: 1.5px solid var(--sky);
+      background: linear-gradient(160deg, #EFF6FF 0%, #FFFFFF 60%);
+      box-shadow: 0 20px 60px -12px rgba(26,86,219,0.2);
+    }
+
+    /* ── nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px) saturate(180%);
+      background: rgba(255,255,255,0.82);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── scroll fade-in ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── CTA glow button ── */
+    .btn-primary {
+      background: var(--sky);
+      color: var(--white);
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      padding: 14px 28px;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+      box-shadow: 0 4px 20px rgba(26,86,219,0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary:hover {
+      background: #1648c0;
+      box-shadow: 0 8px 32px rgba(26,86,219,0.45);
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink-soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-weight: 500;
+      font-size: 0.9375rem;
+      padding: 13px 26px;
+      transition: background 0.2s, color 0.2s, transform 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .btn-ghost:hover {
+      background: var(--surface);
+      color: var(--ink);
+      transform: translateY(-1px);
+    }
+
+    /* ── badge pill ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 9999px;
+    }
+
+    /* ── check icon ── */
+    .check { color: var(--sky); flex-shrink: 0; }
+
+    /* ── logo mark ── */
+    .logomark {
+      width: 34px; height: 34px;
+      background: var(--sky);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── scroll bar styling ── */
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     NAV
+════════════════════════════════════════════ -->
+<nav>
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px;height:62px;display:flex;align-items:center;justify-content:space-between;">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+      <div class="logomark">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <rect x="2" y="2" width="14" height="3" rx="1" fill="white"/>
+          <rect x="2" y="7.5" width="10" height="2" rx="1" fill="rgba(255,255,255,0.6)"/>
+          <rect x="2" y="11.5" width="7" height="2" rx="1" fill="rgba(255,255,255,0.6)"/>
+          <rect x="2" y="15" width="14" height="1" rx="0.5" fill="rgba(255,255,255,0.3)"/>
+        </svg>
+      </div>
+      <span style="font-family:'Fraunces',serif;font-weight:700;font-size:1.2rem;color:var(--ink);letter-spacing:-0.02em;">InvoiceKit</span>
+    </a>
+
+    <div style="display:flex;align-items:center;gap:8px;">
+      <a href="/pricing.html" class="btn-ghost" style="padding:9px 18px;font-size:0.875rem;">Pricing</a>
+      <a href="/index.html" class="btn-primary" style="padding:10px 20px;font-size:0.875rem;">
+        Create Invoice
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════ -->
+<section class="noise grid-bg" style="position:relative;overflow:hidden;padding:152px 24px 100px;">
+
+  <!-- blobs -->
+  <div class="blob" style="width:560px;height:560px;background:#1A56DB;top:-120px;left:-160px;"></div>
+  <div class="blob" style="width:400px;height:400px;background:#F59E0B;top:40px;right:-100px;animation-delay:-4s;opacity:0.1;"></div>
+
+  <div style="max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;position:relative;z-index:1;">
+
+    <!-- left: text -->
+    <div>
+      <div class="badge reveal" style="background:var(--sky-light);color:var(--sky);margin-bottom:28px;">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="5"/></svg>
+        No account needed
+      </div>
+
+      <h1 class="display reveal" style="font-size:clamp(2.6rem,5vw,3.8rem);color:var(--ink);margin-bottom:20px;transition-delay:0.08s;">
+        Invoices that look<br/>
+        <span class="display-italic" style="color:var(--sky);">seriously</span> good.
+      </h1>
+
+      <p class="reveal" style="font-size:1.1rem;color:var(--ink-soft);line-height:1.75;max-width:420px;margin-bottom:36px;transition-delay:0.16s;">
+        Create, customise, and download pixel-perfect PDF invoices in under a minute. No subscriptions, no logins, no fuss.
+      </p>
+
+      <div class="reveal" style="display:flex;gap:14px;flex-wrap:wrap;transition-delay:0.24s;">
+        <a href="/index.html" class="btn-primary" style="font-size:1rem;padding:15px 30px;">
+          Create Invoice — it's free
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#features" class="btn-ghost" style="font-size:1rem;padding:15px 26px;">See features</a>
+      </div>
+
+      <!-- social proof strip -->
+      <div class="reveal" style="display:flex;align-items:center;gap:20px;margin-top:40px;padding-top:32px;border-top:1px solid var(--border);transition-delay:0.32s;">
+        <div style="display:flex;">
+          <!-- avatar stack -->
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#F59E0B,#EF4444);border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:white;">A</div>
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1A56DB,#7C3AED);border:2px solid white;margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:white;">M</div>
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#10B981,#1A56DB);border:2px solid white;margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:white;">K</div>
+        </div>
+        <p style="font-size:0.82rem;color:var(--ink-faint);">Trusted by <strong style="color:var(--ink-soft);">2,400+</strong> freelancers &amp; small businesses</p>
+      </div>
+    </div>
+
+    <!-- right: invoice mockup -->
+    <div class="reveal" style="transition-delay:0.2s;">
+      <div class="invoice-card" style="padding:0;overflow:hidden;max-width:480px;margin-left:auto;">
+
+        <!-- mock header bar -->
+        <div style="background:#1A56DB;padding:22px 28px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;color:white;letter-spacing:-0.02em;">INVOICE</div>
+            <div style="font-size:0.7rem;color:rgba(255,255,255,0.6);margin-top:2px;">INV-0042</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.68rem;color:rgba(255,255,255,0.55);">Due date</div>
+            <div style="font-size:0.85rem;font-weight:600;color:white;">Apr 5, 2026</div>
+          </div>
+        </div>
+
+        <!-- mock body -->
+        <div style="padding:22px 28px;">
+
+          <!-- from / to -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:22px;">
+            <div>
+              <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;color:#1A56DB;margin-bottom:6px;">FROM</div>
+              <div style="font-size:0.82rem;font-weight:600;color:#0B1120;">Acme Studio</div>
+              <div style="font-size:0.75rem;color:#8492A6;">hello@acme.io</div>
+            </div>
+            <div>
+              <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;color:#1A56DB;margin-bottom:6px;">BILL TO</div>
+              <div style="font-size:0.82rem;font-weight:600;color:#0B1120;">Jane Doe</div>
+              <div style="font-size:0.75rem;color:#8492A6;">Widgets Co.</div>
+            </div>
+          </div>
+
+          <!-- table -->
+          <div style="background:#1A56DB;border-radius:7px 7px 0 0;display:grid;grid-template-columns:2fr 0.6fr 0.8fr 0.9fr;padding:8px 12px;">
+            <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.07em;color:rgba(255,255,255,0.8);">DESCRIPTION</div>
+            <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.07em;color:rgba(255,255,255,0.8);text-align:center;">QTY</div>
+            <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.07em;color:rgba(255,255,255,0.8);text-align:right;">RATE</div>
+            <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.07em;color:rgba(255,255,255,0.8);text-align:right;">AMOUNT</div>
+          </div>
+          <div style="border:1px solid #E2E8F2;border-top:none;border-radius:0 0 7px 7px;overflow:hidden;">
+            <div style="display:grid;grid-template-columns:2fr 0.6fr 0.8fr 0.9fr;padding:9px 12px;border-bottom:1px solid #E2E8F2;">
+              <div style="font-size:0.78rem;color:#0B1120;">Web Design</div>
+              <div style="font-size:0.78rem;color:#8492A6;text-align:center;">1</div>
+              <div style="font-size:0.78rem;color:#8492A6;text-align:right;">$1,500</div>
+              <div style="font-size:0.78rem;font-weight:600;color:#0B1120;text-align:right;">$1,500</div>
+            </div>
+            <div style="display:grid;grid-template-columns:2fr 0.6fr 0.8fr 0.9fr;padding:9px 12px;background:#F9FAFB;">
+              <div style="font-size:0.78rem;color:#0B1120;">SEO Audit</div>
+              <div style="font-size:0.78rem;color:#8492A6;text-align:center;">3</div>
+              <div style="font-size:0.78rem;color:#8492A6;text-align:right;">$200</div>
+              <div style="font-size:0.78rem;font-weight:600;color:#0B1120;text-align:right;">$600</div>
+            </div>
+          </div>
+
+          <!-- total -->
+          <div style="margin-top:16px;background:#EFF6FF;border-radius:8px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-size:0.8rem;font-weight:600;color:#1A56DB;">Total Due</div>
+            <div style="font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;color:#1A56DB;">$2,100.00</div>
+          </div>
+
+        </div>
+
+        <!-- mock footer -->
+        <div style="background:#1e3a5f;padding:10px 28px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:0.65rem;color:rgba(255,255,255,0.45);">Generated by InvoiceKit</div>
+          <div style="font-size:0.65rem;color:rgba(255,255,255,0.45);">INV-0042 · Mar 5, 2026</div>
+        </div>
+
+      </div>
+
+      <!-- floating badge -->
+      <div style="position:absolute;bottom:-12px;right:20px;background:white;border:1px solid var(--border);border-radius:12px;padding:10px 16px;box-shadow:0 8px 24px rgba(11,17,32,0.1);display:flex;align-items:center;gap:8px;">
+        <div style="width:28px;height:28px;background:#D1FAE5;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <svg width="14" height="14" fill="none" stroke="#10B981" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M16 12l-4 4m0 0l-4-4m4 4V4"/></svg>
+        </div>
+        <div>
+          <div style="font-size:0.7rem;font-weight:700;color:var(--ink);">PDF ready</div>
+          <div style="font-size:0.65rem;color:var(--ink-faint);">invoice-0042.pdf</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     LOGO STRIP
+════════════════════════════════════════════ -->
+<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:20px 24px;background:var(--surface);">
+  <div style="max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap;">
+    <span style="font-size:0.75rem;color:var(--ink-faint);font-weight:500;letter-spacing:0.04em;text-transform:uppercase;margin-right:8px;">Used by teams at</span>
+    <div style="display:flex;gap:32px;align-items:center;flex-wrap:wrap;justify-content:center;">
+      <span style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:#CBD5E1;letter-spacing:-0.02em;">Freelance&amp;Co</span>
+      <span style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:#CBD5E1;letter-spacing:-0.02em;">StudioNorth</span>
+      <span style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:#CBD5E1;letter-spacing:-0.02em;">Pixelwave</span>
+      <span style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:#CBD5E1;letter-spacing:-0.02em;">Bright Labs</span>
+      <span style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:#CBD5E1;letter-spacing:-0.02em;">Nomad Works</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════
+     FEATURES
+════════════════════════════════════════════ -->
+<section id="features" style="padding:100px 24px;background:var(--white);">
+  <div style="max-width:1180px;margin:0 auto;">
+
+    <div class="reveal" style="text-align:center;margin-bottom:64px;">
+      <div class="badge" style="background:var(--sky-light);color:var(--sky);margin-bottom:16px;">Features</div>
+      <h2 class="display" style="font-size:clamp(2rem,4vw,2.9rem);color:var(--ink);margin-bottom:16px;">
+        Built for speed.<br/>
+        <span class="display-italic" style="color:var(--sky);">Designed to impress.</span>
+      </h2>
+      <p style="font-size:1rem;color:var(--ink-soft);max-width:480px;margin:0 auto;line-height:1.75;">
+        Everything a freelancer or small business needs to send professional invoices — nothing they don't.
+      </p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;">
+
+      <!-- feat 1 -->
+      <div class="feat-card reveal" style="padding:32px 28px;transition-delay:0.05s;">
+        <div style="width:48px;height:48px;background:var(--sky-light);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <svg width="22" height="22" fill="none" stroke="#1A56DB" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <h3 style="font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--ink);margin-bottom:10px;">Instant PDF Export</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);line-height:1.7;">Fill in the form and download a pixel-perfect PDF in under 5 seconds. No waiting, no rendering queue.</p>
+      </div>
+
+      <!-- feat 2 -->
+      <div class="feat-card reveal" style="padding:32px 28px;transition-delay:0.1s;">
+        <div style="width:48px;height:48px;background:#FEF3C7;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <svg width="22" height="22" fill="none" stroke="#D97706" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+        </div>
+        <h3 style="font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--ink);margin-bottom:10px;">No Signup Required</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);line-height:1.7;">Open the app, create your invoice, download. Zero accounts, zero email confirmations, zero friction.</p>
+      </div>
+
+      <!-- feat 3 -->
+      <div class="feat-card reveal" style="padding:32px 28px;transition-delay:0.15s;">
+        <div style="width:48px;height:48px;background:#F0FDF4;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <svg width="22" height="22" fill="none" stroke="#16A34A" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        </div>
+        <h3 style="font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--ink);margin-bottom:10px;">Professional Templates</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);line-height:1.7;">Layouts inspired by Stripe, Notion, and Invoice Ninja. Every invoice looks like it came from a design agency.</p>
+      </div>
+
+      <!-- feat 4 -->
+      <div class="feat-card reveal" style="padding:32px 28px;transition-delay:0.2s;">
+        <div style="width:48px;height:48px;background:#FDF2F8;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <svg width="22" height="22" fill="none" stroke="#9D174D" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M16 12l-4 4m0 0l-4-4m4 4V4"/></svg>
+        </div>
+        <h3 style="font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--ink);margin-bottom:10px;">Unlimited Downloads</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);line-height:1.7;">Generate as many invoices as you need on the free plan. No caps, no pay-per-download nonsense.</p>
+      </div>
+
+      <!-- feat 5 -->
+      <div class="feat-card reveal" style="padding:32px 28px;transition-delay:0.25s;">
+        <div style="width:48px;height:48px;background:#EFF6FF;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <svg width="22" height="22" fill="none" stroke="#1A56DB" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <h3 style="font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--ink);margin-bottom:10px;">Logo Upload</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);line-height:1.7;">Drop in your company logo — it renders perfectly inside the PDF header at the right size, every time.</p>
+      </div>
+
+      <!-- feat 6 -->
+      <div class="feat-card reveal" style="padding:32px 28px;transition-delay:0.3s;">
+        <div style="width:48px;height:48px;background:#F0FDF4;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+          <svg width="22" height="22" fill="none" stroke="#16A34A" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+        </div>
+        <h3 style="font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--ink);margin-bottom:10px;">Tax &amp; Discount</h3>
+        <p style="font-size:0.88rem;color:var(--ink-soft);line-height:1.7;">Add percentage-based tax and discount fields. Subtotals, tax lines, and totals all auto-calculated.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SCREENSHOT SECTION
+════════════════════════════════════════════ -->
+<section style="padding:80px 24px;background:var(--ink);overflow:hidden;position:relative;">
+
+  <div class="blob" style="width:480px;height:480px;background:#1A56DB;top:-80px;left:-80px;opacity:0.25;"></div>
+  <div class="blob" style="width:320px;height:320px;background:#F59E0B;bottom:-60px;right:-60px;opacity:0.1;animation-delay:-6s;"></div>
+
+  <div style="max-width:1180px;margin:0 auto;position:relative;z-index:1;">
+
+    <div class="reveal" style="text-align:center;margin-bottom:56px;">
+      <div class="badge" style="background:rgba(26,86,219,0.2);color:#93C5FD;margin-bottom:16px;">Preview</div>
+      <h2 class="display" style="font-size:clamp(1.9rem,4vw,2.8rem);color:white;margin-bottom:14px;">
+        See what your clients receive.
+      </h2>
+      <p style="font-size:1rem;color:#94A3B8;max-width:420px;margin:0 auto;line-height:1.75;">
+        Every invoice is structured, readable, and built to make your business look credible from day one.
+      </p>
+    </div>
+
+    <!-- screenshot placeholder -->
+    <div class="reveal" style="max-width:760px;margin:0 auto;">
+      <div style="border-radius:18px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.07);">
+
+        <!-- browser chrome -->
+        <div style="background:#1E293B;padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <div style="width:11px;height:11px;border-radius:50%;background:#EF4444;"></div>
+          <div style="width:11px;height:11px;border-radius:50%;background:#F59E0B;"></div>
+          <div style="width:11px;height:11px;border-radius:50%;background:#10B981;"></div>
+          <div style="flex:1;background:#0F172A;border-radius:5px;padding:5px 12px;font-size:0.7rem;color:#475569;text-align:center;">invoicekit.app/create</div>
+        </div>
+
+        <!-- app preview -->
+        <div style="background:#F7F9FC;padding:32px;display:grid;grid-template-columns:1fr 1fr;gap:24px;min-height:320px;">
+
+          <!-- form side -->
+          <div>
+            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;color:#8492A6;text-transform:uppercase;margin-bottom:16px;">Invoice Details</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div>
+                <div style="font-size:0.68rem;color:#8492A6;margin-bottom:4px;">From</div>
+                <div style="background:white;border:1px solid #E2E8F2;border-radius:7px;padding:9px 12px;font-size:0.78rem;color:#0B1120;">Acme Studio</div>
+              </div>
+              <div>
+                <div style="font-size:0.68rem;color:#8492A6;margin-bottom:4px;">Bill To</div>
+                <div style="background:white;border:1px solid #E2E8F2;border-radius:7px;padding:9px 12px;font-size:0.78rem;color:#0B1120;">Jane Doe — Widgets Co.</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div>
+                  <div style="font-size:0.68rem;color:#8492A6;margin-bottom:4px;">Issue</div>
+                  <div style="background:white;border:1px solid #E2E8F2;border-radius:7px;padding:9px 12px;font-size:0.78rem;color:#0B1120;">Mar 5, 2026</div>
+                </div>
+                <div>
+                  <div style="font-size:0.68rem;color:#8492A6;margin-bottom:4px;">Due</div>
+                  <div style="background:white;border:1px solid #1A56DB;border-radius:7px;padding:9px 12px;font-size:0.78rem;color:#0B1120;">Apr 5, 2026</div>
+                </div>
+              </div>
+              <div style="margin-top:8px;">
+                <div style="background:#1A56DB;color:white;border-radius:8px;padding:11px;font-size:0.78rem;font-weight:600;text-align:center;cursor:pointer;box-shadow:0 4px 14px rgba(26,86,219,0.3);">
+                  ↓ Generate PDF
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- preview side -->
+          <div style="background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(11,17,32,0.08);border:1px solid #E2E8F2;">
+            <div style="background:#1A56DB;padding:14px 16px;">
+              <div style="font-size:0.9rem;font-weight:700;color:white;font-family:'Fraunces',serif;">INVOICE</div>
+              <div style="font-size:0.6rem;color:rgba(255,255,255,0.6);">INV-0042</div>
+            </div>
+            <div style="padding:12px 16px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                <div><div style="font-size:0.55rem;color:#1A56DB;font-weight:700;letter-spacing:0.08em;">FROM</div><div style="font-size:0.68rem;font-weight:600;color:#0B1120;">Acme Studio</div></div>
+                <div style="text-align:right;"><div style="font-size:0.55rem;color:#1A56DB;font-weight:700;letter-spacing:0.08em;">BILL TO</div><div style="font-size:0.68rem;font-weight:600;color:#0B1120;">Jane Doe</div></div>
+              </div>
+              <div style="background:#1A56DB;border-radius:4px 4px 0 0;padding:5px 8px;display:flex;gap:8px;">
+                <div style="font-size:0.55rem;font-weight:700;color:rgba(255,255,255,0.8);flex:2;">ITEM</div>
+                <div style="font-size:0.55rem;font-weight:700;color:rgba(255,255,255,0.8);text-align:right;flex:1;">AMT</div>
+              </div>
+              <div style="border:1px solid #E2E8F2;border-top:none;border-radius:0 0 4px 4px;">
+                <div style="padding:5px 8px;border-bottom:1px solid #E2E8F2;display:flex;"><span style="font-size:0.65rem;color:#0B1120;flex:2;">Web Design</span><span style="font-size:0.65rem;color:#0B1120;text-align:right;flex:1;">$1,500</span></div>
+                <div style="padding:5px 8px;background:#F9FAFB;display:flex;"><span style="font-size:0.65rem;color:#0B1120;flex:2;">SEO Audit</span><span style="font-size:0.65rem;color:#0B1120;text-align:right;flex:1;">$600</span></div>
+              </div>
+              <div style="background:#EFF6FF;border-radius:4px;padding:7px 8px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
+                <div style="font-size:0.62rem;font-weight:600;color:#1A56DB;">Total Due</div>
+                <div style="font-size:0.85rem;font-weight:700;color:#1A56DB;font-family:'Fraunces',serif;">$2,100</div>
+              </div>
+            </div>
+            <div style="background:#1e3a5f;padding:6px 16px;">
+              <div style="font-size:0.5rem;color:rgba(255,255,255,0.4);">Generated by InvoiceKit</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     PRICING
+════════════════════════════════════════════ -->
+<section id="pricing" style="padding:100px 24px;background:var(--surface);">
+  <div style="max-width:1180px;margin:0 auto;">
+
+    <div class="reveal" style="text-align:center;margin-bottom:64px;">
+      <div class="badge" style="background:var(--sky-light);color:var(--sky);margin-bottom:16px;">Pricing</div>
+      <h2 class="display" style="font-size:clamp(2rem,4vw,2.9rem);color:var(--ink);margin-bottom:14px;">
+        Simple, honest pricing.
+      </h2>
+      <p style="font-size:1rem;color:var(--ink-soft);max-width:400px;margin:0 auto;line-height:1.75;">
+        Start free, upgrade when you're ready. No hidden fees, no annual lock-ins.
+      </p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:960px;margin:0 auto;">
+
+      <!-- FREE -->
+      <div class="price-card reveal" style="padding:36px 32px;transition-delay:0.05s;">
+        <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px;">Free</div>
+        <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:6px;">
+          <span class="display" style="font-size:2.6rem;color:var(--ink);">$0</span>
+          <span style="font-size:0.85rem;color:var(--ink-faint);">/month</span>
+        </div>
+        <p style="font-size:0.85rem;color:var(--ink-soft);margin-bottom:28px;">Perfect for getting started.</p>
+        <a href="/index.html" class="btn-ghost" style="width:100%;justify-content:center;margin-bottom:28px;">Get started free</a>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:11px;">
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            5 invoices per month
+          </li>
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            PDF download
+          </li>
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Standard template
+          </li>
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Logo upload
+          </li>
+        </ul>
+      </div>
+
+      <!-- PRO (featured) -->
+      <div class="price-card featured reveal" style="padding:36px 32px;position:relative;transition-delay:0.1s;">
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);">
+          <div style="background:var(--sky);color:white;font-size:0.7rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:5px 14px;border-radius:9999px;white-space:nowrap;box-shadow:0 4px 14px rgba(26,86,219,0.35);">Most Popular</div>
+        </div>
+        <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--sky);margin-bottom:14px;">Pro</div>
+        <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:6px;">
+          <span class="display" style="font-size:2.6rem;color:var(--ink);">$12</span>
+          <span style="font-size:0.85rem;color:var(--ink-faint);">/month</span>
+        </div>
+        <p style="font-size:0.85rem;color:var(--ink-soft);margin-bottom:28px;">For active freelancers.</p>
+        <a href="/index.html" class="btn-primary" style="width:100%;justify-content:center;margin-bottom:28px;">Start Pro trial</a>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:11px;">
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <strong style="color:var(--ink);">Unlimited</strong>&nbsp;invoices
+          </li>
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Custom branding &amp; colours
+          </li>
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Save invoice history
+          </li>
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Priority support
+          </li>
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Remove InvoiceKit watermark
+          </li>
+        </ul>
+      </div>
+
+      <!-- BUSINESS -->
+      <div class="price-card reveal" style="padding:36px 32px;transition-delay:0.15s;">
+        <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px;">Business</div>
+        <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:6px;">
+          <span class="display" style="font-size:2.6rem;color:var(--ink);">$39</span>
+          <span style="font-size:0.85rem;color:var(--ink-faint);">/month</span>
+        </div>
+        <p style="font-size:0.85rem;color:var(--ink-soft);margin-bottom:28px;">For teams and agencies.</p>
+        <a href="/index.html" class="btn-ghost" style="width:100%;justify-content:center;margin-bottom:28px;">Contact sales</a>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:11px;">
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Everything in Pro
+          </li>
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Team members (up to 10)
+          </li>
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Invoice analytics
+          </li>
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            REST API access
+          </li>
+          <li style="display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--ink-soft);">
+            <svg class="check" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            Dedicated account manager
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     CTA BANNER
+════════════════════════════════════════════ -->
+<section style="padding:80px 24px;background:var(--ink);position:relative;overflow:hidden;">
+  <div class="blob" style="width:400px;height:400px;background:#1A56DB;top:-100px;right:-80px;opacity:0.3;"></div>
+
+  <div style="max-width:680px;margin:0 auto;text-align:center;position:relative;z-index:1;">
+    <div class="reveal">
+      <h2 class="display" style="font-size:clamp(2rem,5vw,3.2rem);color:white;margin-bottom:18px;">
+        Your next invoice is<br/>
+        <span class="display-italic" style="color:#93C5FD;">30 seconds away.</span>
+      </h2>
+      <p style="font-size:1rem;color:#94A3B8;margin-bottom:36px;line-height:1.75;">
+        No account, no credit card. Just open InvoiceKit, fill in the blanks, and download.
+      </p>
+      <a href="/index.html" class="btn-primary" style="font-size:1rem;padding:16px 34px;">
+        Create your invoice now
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════ -->
+<footer style="background:#0B1120;padding:48px 24px 32px;border-top:1px solid rgba(255,255,255,0.05);">
+  <div style="max-width:1180px;margin:0 auto;">
+
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;">
+
+      <!-- brand -->
+      <div>
+        <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:16px;">
+          <div class="logomark">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <rect x="2" y="2" width="14" height="3" rx="1" fill="white"/>
+              <rect x="2" y="7.5" width="10" height="2" rx="1" fill="rgba(255,255,255,0.6)"/>
+              <rect x="2" y="11.5" width="7" height="2" rx="1" fill="rgba(255,255,255,0.6)"/>
+              <rect x="2" y="15" width="14" height="1" rx="0.5" fill="rgba(255,255,255,0.3)"/>
+            </svg>
+          </div>
+          <span style="font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;color:white;">InvoiceKit</span>
+        </a>
+        <p style="font-size:0.85rem;color:#475569;line-height:1.75;max-width:260px;">
+          Professional invoices for freelancers and small businesses. Fast, free, and beautiful.
+        </p>
+      </div>
+
+      <!-- product -->
+      <div>
+        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#475569;margin-bottom:14px;">Product</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:9px;">
+          <li><a href="/index.html" style="font-size:0.875rem;color:#94A3B8;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94A3B8'">Invoice Generator</a></li>
+          <li><a href="#pricing" style="font-size:0.875rem;color:#94A3B8;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94A3B8'">Pricing</a></li>
+          <li><a href="#features" style="font-size:0.875rem;color:#94A3B8;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94A3B8'">Features</a></li>
+        </ul>
+      </div>
+
+      <!-- company -->
+      <div>
+        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#475569;margin-bottom:14px;">Company</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:9px;">
+          <li><a href="/about.html" style="font-size:0.875rem;color:#94A3B8;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94A3B8'">About</a></li>
+          <li><a href="mailto:hello@invoicekit.app" style="font-size:0.875rem;color:#94A3B8;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94A3B8'">Contact</a></li>
+        </ul>
+      </div>
+
+      <!-- legal -->
+      <div>
+        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#475569;margin-bottom:14px;">Legal</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:9px;">
+          <li><a href="/privacy.html" style="font-size:0.875rem;color:#94A3B8;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94A3B8'">Privacy Policy</a></li>
+          <li><a href="/terms.html" style="font-size:0.875rem;color:#94A3B8;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94A3B8'">Terms of Service</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <p style="font-size:0.8rem;color:#374151;">© 2026 InvoiceKit. All rights reserved.</p>
+      <p style="font-size:0.8rem;color:#374151;">Made with care for freelancers worldwide.</p>
+    </div>
+
+  </div>
+</footer>
+
+
+<!-- ════════════════════════════════════════════
+     JS — scroll reveal
+════════════════════════════════════════════ -->
+<script>
+  // Staggered scroll reveal
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // Responsive: collapse footer grid on mobile
+  const footerGrid = document.querySelector('footer > div > div:first-child');
+  function checkMobile() {
+    if (window.innerWidth < 640) {
+      if (footerGrid) footerGrid.style.gridTemplateColumns = '1fr 1fr';
+    } else {
+      if (footerGrid) footerGrid.style.gridTemplateColumns = '2fr 1fr 1fr 1fr';
+    }
+  }
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+
+  // Collapse hero grid on mobile
+  const heroGrid = document.querySelector('section.noise > div[style*="grid"]');
+  function checkHeroMobile() {
+    if (heroGrid) {
+      if (window.innerWidth < 900) {
+        heroGrid.style.gridTemplateColumns = '1fr';
+      } else {
+        heroGrid.style.gridTemplateColumns = '1fr 1fr';
+      }
+    }
+  }
+  checkHeroMobile();
+  window.addEventListener('resize', checkHeroMobile);
+
+  // Nav shrink on scroll
+  const navEl = document.querySelector('nav');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 40) {
+      navEl.style.boxShadow = '0 4px 24px rgba(11,17,32,0.08)';
+    } else {
+      navEl.style.boxShadow = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -9,6 +9,9 @@ const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'landing.html'));
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
 let invoiceCounter = parseInt(process.env.INVOICE_COUNTER || '1');
