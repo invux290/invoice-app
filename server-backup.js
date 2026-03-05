@@ -8,7 +8,7 @@ const PDFDocument = require('pdfkit');
 const app = express();
 
 app.use(cors());
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 let invoiceCounter = parseInt(process.env.INVOICE_COUNTER || '1');
@@ -16,7 +16,7 @@ let invoiceCounter = parseInt(process.env.INVOICE_COUNTER || '1');
 app.post('/api/invoice', (req, res) => {
   try {
 
-    const body = req.body || {};`nconst logo = body.logo;
+    const body = req.body || {};
     const sender = body.sender || {};
     const client = body.client || {};
     const items = Array.isArray(body.items) ? body.items : [];
