@@ -146,7 +146,7 @@
           </div>
           <div>
             <label class="label">Currency</label>
-            <select id="invCurrency" class="input-base" onchange="updateLiveTotals()">
+            <select id="invCurrency" class="input-base" onchange="updateLiveTotals(); try{localStorage.setItem('currencyPref', this.value)}catch(e){}">
               <option value="USD">USD — Dollar</option>
               <option value="EUR">EUR — Euro</option>
               <option value="GBP">GBP — Pound</option>
@@ -352,6 +352,14 @@
       document.getElementById('senderEmail').value   = d.senderEmail   || '';
       document.getElementById('senderPhone').value   = d.senderPhone   || '';
       document.getElementById('senderAddress').value = d.senderAddress || '';
+    } catch(e){}
+    // Restore saved currency preference
+    try {
+      const pref = localStorage.getItem('currencyPref');
+      if (pref) {
+        const sel = document.getElementById('invCurrency');
+        if (sel) sel.value = pref;
+      }
     } catch(e){}
   }
 
@@ -560,11 +568,42 @@
     document.getElementById('prevNotes').style.display  = 'none';
   }
 
+  // ── Auto-detect currency from user's country ────────────────────
+  const COUNTRY_CURRENCY = {
+    IN: 'INR', US: 'USD', GB: 'GBP', AU: 'AUD', CA: 'CAD',
+    DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR',
+    PT: 'EUR', BE: 'EUR', AT: 'EUR', IE: 'EUR', FI: 'EUR',
+    GR: 'EUR', LU: 'EUR', MT: 'EUR', CY: 'EUR', SK: 'EUR',
+    SI: 'EUR', EE: 'EUR', LV: 'EUR', LT: 'EUR', HR: 'EUR'
+  };
+  async function autoDetectCurrency() {
+    // Don't override if user already has a saved preference
+    try {
+      if (localStorage.getItem('currencyPref')) return;
+    } catch(e){}
+    try {
+      const res  = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(3000) });
+      const data = await res.json();
+      const currency = COUNTRY_CURRENCY[data.country_code];
+      if (currency) {
+        const sel = document.getElementById('invCurrency');
+        if (sel) {
+          sel.value = currency;
+          updateLiveTotals();
+          try { localStorage.setItem('currencyPref', currency); } catch(e){}
+        }
+      }
+    } catch(e) {
+      // Silently fail — keep default INR
+    }
+  }
+
   // ── Init ────────────────────────────────────────────────────────
   window.addEventListener('load', () => {
     loadMyDetails();
     setDefaults();
     addRow();
+    autoDetectCurrency();
     document.getElementById('itemsBody').addEventListener('input', updateLiveTotals);
     document.getElementById('invTax')?.addEventListener('input', updateLiveTotals);
     document.getElementById('invDiscount')?.addEventListener('input', updateLiveTotals);
