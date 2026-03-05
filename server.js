@@ -184,7 +184,7 @@ app.post('/api/invoice', (req, res) => {
 });
 
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'landing.html')));
 app.get('/app', (req, res) => res.sendFile(path.join(__dirname, 'public', 'app.html')));
 app.get('/app.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'app.html')));
 
