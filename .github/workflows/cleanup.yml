@@ -1,0 +1,47 @@
+name: Cleanup Repo
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "What to clean up"
+        required: true
+        default: "junk-files"
+        type: choice
+        options:
+          - junk-files
+          - fix-gitignore
+          - all
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove junk files
+        if: ${{ github.event.inputs.task == 'junk-files' || github.event.inputs.task == 'all' }}
+        run: |
+          git rm --cached ".env" 2>/dev/null || true
+          git rm -f "chunks.push(chunk))" 2>/dev/null || true
+          git rm -f "{ ^" 2>/dev/null || true
+          git rm -f "phase2.bat" 2>/dev/null || true
+          git rm -f "build.bat" 2>/dev/null || true
+          echo "Junk files removed."
+
+      - name: Fix .gitignore
+        if: ${{ github.event.inputs.task == 'fix-gitignore' || github.event.inputs.task == 'all' }}
+        run: |
+          grep -qxF ".env" .gitignore || echo ".env" >> .gitignore
+          grep -qxF "*.bat" .gitignore || echo "*.bat" >> .gitignore
+          echo ".gitignore updated."
+
+      - name: Commit and push cleanup
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add -A
+          git diff --staged --quiet || git commit -m "chore: automated cleanup"
+          git push
