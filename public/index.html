@@ -1,294 +1,256 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-J67DHCY1BE"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-J67DHCY1BE');
-  </script>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InvoiceKit — Free Invoice Generator</title>
   <link rel="icon" href="/favicon.ico" />
-
   <script src="https://cdn.tailwindcss.com"></script>
-
   <script>
     tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: { DEFAULT: '#4f46e5', light: '#eef2ff', dark: '#4338ca' }
-          }
-        }
-      }
+      theme: { extend: { colors: { brand: { DEFAULT:'#4f46e5', dark:'#4338ca', light:'#eef2ff' } } } }
     }
   </script>
-
   <style>
-    [x-cloak] { display: none; }
-    input, select, textarea { outline: none; }
     input:focus, select:focus, textarea:focus {
+      outline: none;
       box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+      border-color: #4f46e5 !important;
+      background: #fff !important;
     }
+    .input-base {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      font-size: 0.875rem;
+      color: #1e293b;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .label { display: block; font-size: 0.72rem; font-weight: 600; color: #64748b; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
     @media print {
-      #formCol, #appHeader, #actionButtons { display: none !important; }
-      #previewCol { width: 100% !important; }
+      #formCol, header, #actionCol { display: none !important; }
+      #previewBox { box-shadow: none !important; }
     }
   </style>
 </head>
-<body class="bg-slate-50 min-h-screen font-sans text-slate-800 antialiased">
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased">
 
-<!-- ── HEADER ─────────────────────────────────────────────── -->
-<header id="appHeader" class="bg-white border-b border-slate-200 sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+<!-- HEADER -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+  <div class="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
     <div class="flex items-center gap-2.5">
-      <div class="w-7 h-7 bg-brand rounded-lg flex items-center justify-center text-white text-xs font-bold">IK</div>
-      <span class="font-semibold text-slate-900 tracking-tight">InvoiceKit</span>
-      <span class="bg-brand-light text-brand text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">Free</span>
+      <div class="w-7 h-7 bg-brand rounded-lg flex items-center justify-center text-white font-bold text-xs">IK</div>
+      <span class="font-bold text-slate-900 tracking-tight text-base">InvoiceKit</span>
+      <span class="bg-brand-light text-brand text-[10px] font-bold px-2 py-0.5 rounded-full">FREE</span>
     </div>
-    <span class="text-xs text-slate-400 hidden sm:block">No signup · PDF in seconds</span>
+    <span class="text-xs text-slate-400 hidden sm:block">No signup &nbsp;·&nbsp; PDF in seconds</span>
   </div>
 </header>
 
-<!-- ── MAIN ───────────────────────────────────────────────── -->
-<main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+<!-- MAIN -->
+<main class="max-w-6xl mx-auto px-4 sm:px-5 py-7">
 
-  <!-- Page title -->
+  <!-- Page heading -->
   <div class="mb-6">
-    <h1 class="text-xl font-bold text-slate-900">New Invoice</h1>
-    <p class="text-sm text-slate-500 mt-0.5">Fill in the details below, then generate your PDF.</p>
+    <h1 class="text-xl font-bold text-slate-900">Create Invoice</h1>
+    <p class="text-sm text-slate-500 mt-0.5">Fill in the details below, then download your professional PDF.</p>
   </div>
 
-  <!-- Error banner -->
+  <!-- Error -->
   <div id="errorMsg" style="display:none"
-       class="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg flex items-start gap-2">
+       class="mb-5 flex items-start gap-2.5 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
     <svg class="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
       <path fill-rule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
     </svg>
     <span id="errorText"></span>
   </div>
 
-  <!-- Two-column grid -->
-  <div class="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 items-start">
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5 items-start">
 
-    <!-- ── LEFT: FORM ──────────────────────────────────────── -->
-    <div id="formCol" class="space-y-5">
+    <!-- LEFT FORM -->
+    <div id="formCol" class="space-y-4">
 
-      <!-- YOUR BUSINESS -->
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <!-- Your Business -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2">
           <svg class="w-3.5 h-3.5 text-brand" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2M5 21H3M9 7h1m-1 4h1m4-4h1m-1 4h1M9 21v-3.5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5V21"/></svg>
           <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Your Business</span>
         </div>
         <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="sm:col-span-2">
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Business / Your Name <span class="text-red-400">*</span></label>
-            <input id="senderName" type="text" placeholder="Acme Studio"
-                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
+            <label class="label">Business / Your Name <span class="text-red-400 normal-case font-normal">*</span></label>
+            <input id="senderName" type="text" placeholder="Acme Studio" class="input-base" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Email</label>
-            <input id="senderEmail" type="email" placeholder="hello@acme.com"
-                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
+            <label class="label">Email</label>
+            <input id="senderEmail" type="email" placeholder="hello@acme.com" class="input-base" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Phone</label>
-            <input id="senderPhone" type="text" placeholder="+1 555 000 0000"
-                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
+            <label class="label">Phone</label>
+            <input id="senderPhone" type="tel" placeholder="+91 98765 43210" class="input-base" />
           </div>
           <div class="sm:col-span-2">
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Address</label>
-            <input id="senderAddress" type="text" placeholder="123 Main St, New York, NY 10001"
-                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
+            <label class="label">Address</label>
+            <input id="senderAddress" type="text" placeholder="123 Main St, Mumbai, 400001" class="input-base" />
           </div>
         </div>
       </div>
 
-      <!-- BILL TO -->
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <!-- Bill To -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2">
           <svg class="w-3.5 h-3.5 text-brand" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
           <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Bill To</span>
         </div>
         <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Client Name <span class="text-red-400">*</span></label>
-            <input id="clientName" type="text" placeholder="Jane Smith"
-                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
+            <label class="label">Client Name <span class="text-red-400 normal-case font-normal">*</span></label>
+            <input id="clientName" type="text" placeholder="Jane Smith" class="input-base" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Company</label>
-            <input id="clientCompany" type="text" placeholder="Client Corp"
-                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
+            <label class="label">Company</label>
+            <input id="clientCompany" type="text" placeholder="Client Corp" class="input-base" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Email</label>
-            <input id="clientEmail" type="email" placeholder="jane@clientcorp.com"
-                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
+            <label class="label">Email</label>
+            <input id="clientEmail" type="email" placeholder="jane@clientcorp.com" class="input-base" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Address</label>
-            <input id="clientAddress" type="text" placeholder="456 Oak Ave, Austin, TX"
-                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
+            <label class="label">Address</label>
+            <input id="clientAddress" type="text" placeholder="456 Park St, Delhi" class="input-base" />
           </div>
         </div>
       </div>
 
-      <!-- INVOICE DETAILS -->
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <!-- Invoice Details -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2">
           <svg class="w-3.5 h-3.5 text-brand" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Invoice Details</span>
         </div>
         <div class="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Invoice Number</label>
-            <input id="invNumber" type="text" placeholder="INV-0001"
-                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
+            <label class="label">Invoice Number</label>
+            <input id="invNumber" type="text" placeholder="INV-0001" class="input-base" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Issue Date</label>
-            <input id="invDate" type="date"
-                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 transition focus:bg-white focus:border-brand" />
+            <label class="label">Issue Date</label>
+            <input id="invDate" type="date" class="input-base" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Due Date</label>
-            <input id="invDue" type="date"
-                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 transition focus:bg-white focus:border-brand" />
+            <label class="label">Due Date</label>
+            <input id="invDue" type="date" class="input-base" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Currency</label>
-            <select id="invCurrency"
-                    class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 transition focus:bg-white focus:border-brand">
+            <label class="label">Currency</label>
+            <select id="invCurrency" class="input-base" onchange="updateLiveTotals()">
               <option value="USD">USD — Dollar</option>
               <option value="EUR">EUR — Euro</option>
               <option value="GBP">GBP — Pound</option>
-              <option value="INR">INR — Rupee</option>
+              <option value="INR" selected>INR — Rupee</option>
               <option value="CAD">CAD — Canadian</option>
               <option value="AUD">AUD — Australian</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tax Rate (%)</label>
-            <input id="invTax" type="number" placeholder="0" min="0" max="100" step="0.1"
-                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
+            <label class="label">Tax Rate (%)</label>
+            <input id="invTax" type="number" placeholder="18" min="0" max="100" step="0.1" class="input-base" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Discount (flat)</label>
-            <input id="invDiscount" type="number" placeholder="0.00" min="0" step="0.01"
-                   class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
+            <label class="label">Discount (flat)</label>
+            <input id="invDiscount" type="number" placeholder="0.00" min="0" step="0.01" class="input-base" />
           </div>
           <div class="sm:col-span-3">
-            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Notes / Payment Terms</label>
-            <textarea id="invNotes" rows="3" placeholder="e.g. Payment due within 14 days. Bank transfer to account 12345678."
-                      class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 transition focus:bg-white focus:border-brand resize-none"></textarea>
+            <label class="label">Notes / Payment Terms</label>
+            <textarea id="invNotes" rows="3" placeholder="e.g. Payment due within 14 days. NEFT to: HDFC Bank A/C 1234567890, IFSC HDFC0001234" class="input-base resize-none"></textarea>
           </div>
         </div>
       </div>
 
-      <!-- LINE ITEMS -->
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <!-- Line Items -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="px-5 py-3.5 border-b border-slate-100 flex items-center gap-2">
-          <svg class="w-3.5 h-3.5 text-brand" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+          <svg class="w-3.5 h-3.5 text-brand" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h7"/></svg>
           <span class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Line Items</span>
         </div>
 
         <!-- Table header -->
-        <div class="grid grid-cols-[1fr_80px_100px_90px_36px] gap-2 px-5 py-2.5 bg-slate-50 border-b border-slate-100">
-          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Description</span>
-          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide text-center">Qty</span>
-          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide text-right">Rate</span>
-          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide text-right">Amount</span>
+        <div class="grid gap-2 px-5 py-2.5 bg-slate-50 border-b border-slate-100"
+             style="grid-template-columns: 1fr 72px 100px 88px 32px">
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Description</span>
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide text-center">Qty</span>
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide text-right">Rate</span>
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide text-right">Amount</span>
           <span></span>
         </div>
 
-        <!-- Rows -->
-        <div id="itemsBody" class="divide-y divide-slate-100 px-5">
-          <div class="grid grid-cols-[1fr_80px_100px_90px_36px] gap-2 py-3 items-center" data-row="0">
-            <input type="text" data-field="desc" placeholder="Web design services"
-                   class="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
-            <input type="number" data-field="qty" placeholder="1" min="0" step="any"
-                   class="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-center placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
-            <input type="number" data-field="rate" placeholder="0.00" min="0" step="0.01"
-                   class="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-right placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
-            <span data-amt class="text-sm font-semibold text-slate-700 text-right tabular-nums">—</span>
-            <button onclick="removeRow(this)" class="w-7 h-7 rounded-md text-slate-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition text-base leading-none">✕</button>
-          </div>
-        </div>
+        <!-- Rows container -->
+        <div id="itemsBody" class="divide-y divide-slate-100 px-5"></div>
 
         <!-- Add row + live totals -->
         <div class="px-5 pb-5">
           <button type="button" onclick="addRow()"
-                  class="mt-3 w-full py-2.5 rounded-lg border-2 border-dashed border-slate-200 text-sm font-semibold text-slate-400 hover:border-brand hover:text-brand hover:bg-brand-light transition">
+                  class="mt-3 w-full py-2.5 rounded-xl border-2 border-dashed border-slate-200 text-sm font-semibold text-slate-400 hover:border-brand hover:text-brand hover:bg-brand-light transition-all">
             + Add Line Item
           </button>
 
-          <!-- Live totals -->
-          <div id="liveTotals" class="mt-5 flex flex-col items-end gap-1.5">
-            <div class="flex justify-between w-56 text-sm text-slate-500">
-              <span>Subtotal</span>
-              <span id="liveSubtotal" class="font-medium text-slate-700 tabular-nums">$0.00</span>
+          <div class="mt-5 flex flex-col items-end gap-1.5">
+            <div class="flex justify-between w-52 text-sm">
+              <span class="text-slate-500">Subtotal</span>
+              <span id="liveSubtotal" class="font-semibold text-slate-700 tabular-nums">—</span>
             </div>
-            <div class="flex justify-between w-56 text-sm text-slate-500">
-              <span>Tax</span>
-              <span id="liveTaxAmt" class="font-medium text-slate-700 tabular-nums">$0.00</span>
+            <div class="flex justify-between w-52 text-sm">
+              <span class="text-slate-500">Tax</span>
+              <span id="liveTaxAmt" class="font-semibold text-slate-700 tabular-nums">—</span>
             </div>
-            <div class="flex justify-between w-56 text-sm text-slate-500">
-              <span>Discount</span>
-              <span id="liveDiscAmt" class="font-medium text-slate-700 tabular-nums">—</span>
+            <div class="flex justify-between w-52 text-sm">
+              <span class="text-slate-500">Discount</span>
+              <span id="liveDiscAmt" class="font-semibold text-slate-700 tabular-nums">—</span>
             </div>
-            <div class="w-56 border-t border-slate-200 my-1"></div>
-            <div class="flex justify-between w-56">
+            <div class="w-52 border-t border-slate-200 my-1"></div>
+            <div class="flex justify-between w-52">
               <span class="text-sm font-bold text-slate-800">Total Due</span>
-              <span id="liveTotal" class="text-lg font-extrabold text-brand tabular-nums">$0.00</span>
+              <span id="liveTotal" class="text-lg font-extrabold text-brand tabular-nums">—</span>
             </div>
           </div>
         </div>
       </div>
 
-    </div><!-- end left col -->
+    </div>
+    <!-- end left col -->
 
-    <!-- ── RIGHT: ACTIONS + PREVIEW ───────────────────────── -->
-    <div id="previewCol" class="space-y-5 lg:sticky lg:top-20">
+    <!-- RIGHT COLUMN -->
+    <div id="actionCol" class="space-y-4 lg:sticky lg:top-20">
 
-      <!-- ACTION BUTTONS -->
-      <div id="actionButtons" class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3">
+      <!-- Buttons -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
         <button id="generateBtn" onclick="generateInvoice()"
-                class="w-full bg-brand hover:bg-brand-dark active:scale-[.98] text-white font-bold text-sm py-3.5 px-6 rounded-xl shadow-sm shadow-indigo-200 transition-all flex items-center justify-center gap-2">
+                class="w-full bg-brand hover:bg-brand-dark active:scale-[.98] text-white font-bold text-sm py-3.5 px-6 rounded-xl shadow-md shadow-indigo-200 transition-all flex items-center justify-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-          Generate & Download PDF
+          Generate &amp; Download PDF
         </button>
-
         <button type="button" onclick="clearForm()"
-                class="w-full bg-white hover:bg-slate-50 text-slate-600 font-semibold text-sm py-3 px-6 rounded-xl border border-slate-200 transition flex items-center justify-center gap-2">
+                class="w-full bg-white hover:bg-slate-50 text-slate-600 font-semibold text-sm py-3 px-6 rounded-xl border border-slate-200 transition-all flex items-center justify-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
           Clear Form
         </button>
       </div>
 
-      <!-- INVOICE PREVIEW CARD -->
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-
-        <!-- Preview header (indigo band) -->
+      <!-- Invoice preview card -->
+      <div id="previewBox" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="bg-brand px-6 py-5 text-white">
           <div class="flex justify-between items-start">
             <div>
-              <p class="text-[11px] font-semibold uppercase tracking-widest text-indigo-300 mb-1">Invoice</p>
-              <p id="prevNum" class="text-xl font-extrabold tracking-tight">#INV-0001</p>
+              <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1">Invoice</p>
+              <p id="prevNum" class="text-xl font-extrabold">#INV-0001</p>
             </div>
-            <div class="text-right text-xs text-indigo-200 leading-relaxed" id="prevDates">
-              Issued: —<br>Due: —
-            </div>
+            <div id="prevDates" class="text-right text-xs text-indigo-200 leading-relaxed">Issued: —<br>Due: —</div>
           </div>
         </div>
 
-        <!-- From / To -->
         <div class="grid grid-cols-2 gap-4 px-6 py-4 border-b border-slate-100 bg-slate-50">
           <div>
             <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">From</p>
@@ -302,27 +264,21 @@
           </div>
         </div>
 
-        <!-- Preview line items -->
         <div class="px-6 py-4">
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-slate-100">
-                <th class="text-left text-[10px] font-bold uppercase tracking-wide text-slate-400 pb-2">Item</th>
-                <th class="text-center text-[10px] font-bold uppercase tracking-wide text-slate-400 pb-2">Qty</th>
-                <th class="text-right text-[10px] font-bold uppercase tracking-wide text-slate-400 pb-2">Rate</th>
-                <th class="text-right text-[10px] font-bold uppercase tracking-wide text-slate-400 pb-2">Total</th>
+                <th class="text-left text-[10px] font-bold uppercase tracking-wide text-slate-400 pb-2 font-sans">Item</th>
+                <th class="text-center text-[10px] font-bold uppercase tracking-wide text-slate-400 pb-2 font-sans">Qty</th>
+                <th class="text-right text-[10px] font-bold uppercase tracking-wide text-slate-400 pb-2 font-sans">Rate</th>
+                <th class="text-right text-[10px] font-bold uppercase tracking-wide text-slate-400 pb-2 font-sans">Total</th>
               </tr>
             </thead>
-            <tbody id="prevItems" class="divide-y divide-slate-50">
-              <tr>
-                <td colspan="4" class="py-6 text-center text-xs text-slate-400">
-                  Fill the form and click Generate
-                </td>
-              </tr>
+            <tbody id="prevItems">
+              <tr><td colspan="4" class="py-6 text-center text-xs text-slate-400">Fill the form and click Generate</td></tr>
             </tbody>
           </table>
 
-          <!-- Preview totals -->
           <div id="prevTotals" class="mt-4 pt-4 border-t border-slate-100 space-y-1.5" style="display:none">
             <div class="flex justify-between text-xs text-slate-500">
               <span>Subtotal</span><span id="prevSubtotal" class="tabular-nums font-medium">—</span>
@@ -333,165 +289,157 @@
             <div class="flex justify-between text-xs text-slate-500">
               <span>Discount</span><span id="prevDisc" class="tabular-nums font-medium">—</span>
             </div>
-            <div class="flex justify-between pt-2 border-t border-slate-200 mt-1">
+            <div class="flex justify-between pt-2 border-t border-slate-200">
               <span class="text-sm font-bold text-slate-800">Total Due</span>
               <span id="prevTotal" class="text-sm font-extrabold text-brand tabular-nums">—</span>
             </div>
           </div>
 
-          <!-- Notes preview -->
           <div id="prevNotes" class="mt-4 pt-4 border-t border-slate-100" style="display:none">
             <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-1">Notes</p>
             <p id="prevNotesText" class="text-xs text-slate-600 leading-relaxed"></p>
           </div>
         </div>
 
-        <!-- Status bar -->
         <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
           <div class="flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span>
             <span class="text-xs text-slate-500 font-medium">Draft</span>
           </div>
-          <span id="prevCurrency" class="text-xs font-bold text-brand">USD</span>
+          <span id="prevCurrency" class="text-xs font-bold text-brand">INR</span>
         </div>
       </div>
 
-      <!-- Tip -->
-      <p class="text-center text-xs text-slate-400 px-2">
-        Your data stays in your browser. Nothing is stored on our servers.
-      </p>
+      <p class="text-center text-xs text-slate-400 px-2">Your data never leaves your browser.</p>
+    </div>
 
-    </div><!-- end right col -->
-  </div><!-- end grid -->
+  </div>
 </main>
 
-<!-- ── JAVASCRIPT (all original logic preserved) ─────────── -->
 <script>
-  // ── Helpers ──────────────────────────────────────────────
+  // ── Helpers ────────────────────────────────────────────────────
   function getSymbol(c) {
-    return { USD:'$', EUR:'€', GBP:'£', INR:'₹', CAD:'CA$', AUD:'A$' }[c] || c + ' ';
+    return { USD:'$', EUR:'\u20ac', GBP:'\u00a3', INR:'\u20b9', CAD:'CA$', AUD:'A$' }[c] || (c + ' ');
   }
-  function fmt(n, c) {
+  function fmtMoney(n, c) {
     c = c || document.getElementById('invCurrency').value;
     return getSymbol(c) + parseFloat(n || 0).toFixed(2);
   }
-
-  // ── Saved details ─────────────────────────────────────────
-  function saveMyDetails() {
-    const d = {
-      senderName:    document.getElementById('senderName').value,
-      senderEmail:   document.getElementById('senderEmail').value,
-      senderPhone:   document.getElementById('senderPhone').value,
-      senderAddress: document.getElementById('senderAddress').value,
-    };
-    localStorage.setItem('myDetails', JSON.stringify(d));
+  function showError(msg) {
+    document.getElementById('errorText').textContent = msg;
+    const el = document.getElementById('errorMsg');
+    el.style.display = 'flex';
+    el.scrollIntoView({ behavior:'smooth', block:'nearest' });
   }
+  function clearError() { document.getElementById('errorMsg').style.display = 'none'; }
 
+  // ── Saved sender details ────────────────────────────────────────
+  function saveMyDetails() {
+    try {
+      localStorage.setItem('senderDetails', JSON.stringify({
+        senderName:    document.getElementById('senderName').value,
+        senderEmail:   document.getElementById('senderEmail').value,
+        senderPhone:   document.getElementById('senderPhone').value,
+        senderAddress: document.getElementById('senderAddress').value
+      }));
+    } catch(e){}
+  }
   function loadMyDetails() {
     try {
-      const saved = localStorage.getItem('myDetails');
-      if (!saved) return;
-      const d = JSON.parse(saved);
+      const d = JSON.parse(localStorage.getItem('senderDetails') || 'null');
+      if (!d) return;
       document.getElementById('senderName').value    = d.senderName    || '';
       document.getElementById('senderEmail').value   = d.senderEmail   || '';
       document.getElementById('senderPhone').value   = d.senderPhone   || '';
       document.getElementById('senderAddress').value = d.senderAddress || '';
-    } catch(e) {}
+    } catch(e){}
   }
 
-  // ── Dates ────────────────────────────────────────────────
-  function setDefaultDates() {
+  // ── Dates + invoice number ──────────────────────────────────────
+  function getNextInvoiceNumber() {
+    try {
+      const n = parseInt(localStorage.getItem('invCounter') || '0') + 1;
+      localStorage.setItem('invCounter', n);
+      return 'INV-' + String(n).padStart(4,'0');
+    } catch(e){ return 'INV-0001'; }
+  }
+  function setDefaults() {
     const today = new Date();
-    const due   = new Date();
-    due.setDate(today.getDate() + 14);
-    const fmt2 = d => d.toISOString().split('T')[0];
+    const due   = new Date(); due.setDate(today.getDate() + 14);
+    const fmt   = d => d.toISOString().split('T')[0];
     const dateEl = document.getElementById('invDate');
     const dueEl  = document.getElementById('invDue');
-    if (dateEl && !dateEl.value) dateEl.value = fmt2(today);
-    if (dueEl  && !dueEl.value)  dueEl.value  = fmt2(due);
-    const numEl = document.getElementById('invNumber');
-    if (numEl && !numEl.value) numEl.value = getNextInvoiceNumber();
+    const numEl  = document.getElementById('invNumber');
+    if (dateEl && !dateEl.value) dateEl.value = fmt(today);
+    if (dueEl  && !dueEl.value)  dueEl.value  = fmt(due);
+    if (numEl  && !numEl.value)  numEl.value  = getNextInvoiceNumber();
   }
 
-  // ── Invoice number ────────────────────────────────────────
-  function getNextInvoiceNumber() {
-    const last = parseInt(localStorage.getItem('lastInvoiceNum') || '0');
-    const next = last + 1;
-    localStorage.setItem('lastInvoiceNum', next);
-    return `INV-${String(next).padStart(4, '0')}`;
+  // ── Row creation ────────────────────────────────────────────────
+  let rowCount = 0;
+  function makeRowHTML(idx) {
+    return '<div class="grid gap-2 py-3 items-center" data-row="' + idx + '" style="grid-template-columns:1fr 72px 100px 88px 32px">' +
+      '<input type="text"   data-field="desc" placeholder="Service description" class="input-base" />' +
+      '<input type="number" data-field="qty"  placeholder="1"    min="0" step="any"  class="input-base text-center" />' +
+      '<input type="number" data-field="rate" placeholder="0.00" min="0" step="0.01" class="input-base text-right" />' +
+      '<span data-amt class="text-sm font-bold text-slate-700 text-right tabular-nums">\u2014</span>' +
+      '<button type="button" onclick="removeRow(this)" class="w-7 h-7 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition text-sm">\u2715</button>' +
+    '</div>';
   }
-
-  // ── Line items ────────────────────────────────────────────
-  let rowCount = 1;
-
   function addRow() {
     const body = document.getElementById('itemsBody');
     const div  = document.createElement('div');
-    div.className = 'grid grid-cols-[1fr_80px_100px_90px_36px] gap-2 py-3 items-center';
-    div.dataset.row = rowCount++;
-    div.innerHTML = `
-      <input type="text"   data-field="desc" placeholder="Service description"
-             class="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
-      <input type="number" data-field="qty"  placeholder="1" min="0" step="any"
-             class="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-center placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
-      <input type="number" data-field="rate" placeholder="0.00" min="0" step="0.01"
-             class="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-right placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
-      <span data-amt class="text-sm font-semibold text-slate-700 text-right tabular-nums">—</span>
-      <button onclick="removeRow(this)" class="w-7 h-7 rounded-md text-slate-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition text-base leading-none">✕</button>`;
-    body.appendChild(div);
-    div.addEventListener('input', updateLiveTotals);
+    div.innerHTML = makeRowHTML(rowCount++);
+    const row = div.firstElementChild;
+    row.addEventListener('input', updateLiveTotals);
+    body.appendChild(row);
   }
-
   function removeRow(btn) {
     const rows = document.querySelectorAll('#itemsBody [data-row]');
     if (rows.length > 1) { btn.closest('[data-row]').remove(); updateLiveTotals(); }
   }
 
-  // ── Live totals ──────────────────────────────────────────
+  // ── Live totals ─────────────────────────────────────────────────
   function updateLiveTotals() {
-    const c    = document.getElementById('invCurrency').value;
-    let sub    = 0;
+    const c   = document.getElementById('invCurrency').value;
+    let sub   = 0;
     document.querySelectorAll('#itemsBody [data-row]').forEach(r => {
       const qty  = parseFloat(r.querySelector('[data-field=qty]')?.value)  || 0;
       const rate = parseFloat(r.querySelector('[data-field=rate]')?.value) || 0;
       const amt  = qty * rate;
       sub += amt;
-      const amtEl = r.querySelector('[data-amt]');
-      if (amtEl) amtEl.textContent = amt > 0 ? fmt(amt, c) : '—';
+      const el = r.querySelector('[data-amt]');
+      if (el) el.textContent = amt > 0 ? fmtMoney(amt, c) : '\u2014';
     });
     const tax  = sub * ((parseFloat(document.getElementById('invTax')?.value)      || 0) / 100);
     const disc = parseFloat(document.getElementById('invDiscount')?.value) || 0;
-    const total = Math.max(0, sub + tax - disc);
-
-    document.getElementById('liveSubtotal').textContent = fmt(sub,   c);
-    document.getElementById('liveTaxAmt').textContent   = fmt(tax,   c);
-    document.getElementById('liveDiscAmt').textContent  = disc > 0 ? `- ${fmt(disc, c)}` : '—';
-    document.getElementById('liveTotal').textContent    = fmt(total, c);
+    const tot  = Math.max(0, sub + tax - disc);
+    document.getElementById('liveSubtotal').textContent = sub  > 0 ? fmtMoney(sub,  c) : '\u2014';
+    document.getElementById('liveTaxAmt').textContent   = tax  > 0 ? fmtMoney(tax,  c) : '\u2014';
+    document.getElementById('liveDiscAmt').textContent  = disc > 0 ? '- ' + fmtMoney(disc, c) : '\u2014';
+    document.getElementById('liveTotal').textContent    = tot  > 0 ? fmtMoney(tot,  c) : '\u2014';
   }
 
-  // ── Error display ─────────────────────────────────────────
-  function showError(msg) {
-    const el = document.getElementById('errorMsg');
-    document.getElementById('errorText').textContent = msg;
-    el.style.display = 'flex';
-    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  // ── Reset button ────────────────────────────────────────────────
+  function resetBtn() {
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = false;
+    btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> Generate &amp; Download PDF';
   }
-  function clearError() { document.getElementById('errorMsg').style.display = 'none'; }
 
-  // ── Generate invoice ──────────────────────────────────────
+  // ── Generate invoice ────────────────────────────────────────────
   async function generateInvoice() {
     clearError();
     saveMyDetails();
 
     const btn = document.getElementById('generateBtn');
     btn.disabled = true;
-    btn.innerHTML = `<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Generating...`;
+    btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Generating...';
 
     const senderName = document.getElementById('senderName').value.trim();
     const clientName = document.getElementById('clientName').value.trim();
-
     if (!senderName) { showError('Your business name is required.'); resetBtn(); return; }
-    if (!clientName) { showError('Client name is required.'); resetBtn(); return; }
+    if (!clientName) { showError('Client name is required.');        resetBtn(); return; }
 
     const items = [];
     let valid = true;
@@ -502,12 +450,24 @@
       if (!desc || isNaN(qty) || isNaN(rate)) { valid = false; return; }
       items.push({ desc, qty, rate });
     });
-
-    if (!valid || !items.length) { showError('Please complete all line items (description, qty, rate).'); resetBtn(); return; }
+    if (!valid || !items.length) {
+      showError('Please complete all line items with description, quantity, and rate.');
+      resetBtn(); return;
+    }
 
     const payload = {
-      sender: { name: senderName, email: document.getElementById('senderEmail').value, phone: document.getElementById('senderPhone').value, address: document.getElementById('senderAddress').value },
-      client: { name: clientName, company: document.getElementById('clientCompany').value, email: document.getElementById('clientEmail').value, address: document.getElementById('clientAddress').value },
+      sender: {
+        name:    senderName,
+        email:   document.getElementById('senderEmail').value,
+        phone:   document.getElementById('senderPhone').value,
+        address: document.getElementById('senderAddress').value
+      },
+      client: {
+        name:    clientName,
+        company: document.getElementById('clientCompany').value,
+        email:   document.getElementById('clientEmail').value,
+        address: document.getElementById('clientAddress').value
+      },
       items,
       invoice: {
         number:   document.getElementById('invNumber').value,
@@ -521,103 +481,94 @@
     };
 
     try {
-      const res  = await fetch('/api/invoice', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Server error');
-      renderPreview(data.invoice);
-    } catch (err) {
-      // client-side fallback
-      renderPreviewLocal(payload);
+      const res = await fetch('/api/invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const ct = res.headers.get('Content-Type') || '';
+      if (!res.ok || !ct.includes('application/pdf')) {
+        const err = await res.json().catch(() => ({ error: 'Server error.' }));
+        showError(err.error || 'Failed to generate PDF.'); resetBtn(); return;
+      }
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'invoice-' + (payload.invoice.number || 'download') + '.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      renderPreview(payload);
+    } catch(err) {
+      showError('Network error — check your connection and try again.');
+      console.error(err);
     }
     resetBtn();
   }
 
-  function resetBtn() {
-    const btn = document.getElementById('generateBtn');
-    btn.disabled = false;
-    btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> Generate & Download PDF`;
-  }
-
-  function renderPreviewLocal(p) {
-    const c   = p.invoice.currency;
-    const sub = p.items.reduce((s,i) => s + i.qty * i.rate, 0);
-    const tax = sub * ((parseFloat(p.invoice.taxRate) || 0) / 100);
-    const disc = parseFloat(p.invoice.discount) || 0;
-    renderPreview({
-      number: p.invoice.number, issued: p.invoice.date, due: p.invoice.due,
-      currency: c, notes: p.invoice.notes, sender: p.sender, client: p.client,
-      items: p.items.map(i => ({ ...i, amount: (i.qty * i.rate).toFixed(2) })),
-      subtotal: sub.toFixed(2), taxRate: p.invoice.taxRate,
-      taxAmount: tax.toFixed(2), discount: disc.toFixed(2),
-      total: Math.max(0, sub + tax - disc).toFixed(2)
-    });
-  }
-
-  function renderPreview(inv) {
-    const c = inv.currency;
-    document.getElementById('prevNum').textContent     = '#' + inv.number;
+  // ── Render preview ──────────────────────────────────────────────
+  function renderPreview(p) {
+    const c = p.invoice.currency;
+    document.getElementById('prevNum').textContent      = '#' + (p.invoice.number || 'INV');
     document.getElementById('prevCurrency').textContent = c;
-    document.getElementById('prevDates').innerHTML     = `Issued: ${inv.issued || '—'}<br>Due: ${inv.due || '—'}`;
-    document.getElementById('prevSenderName').textContent = inv.sender.name;
-    document.getElementById('prevSenderDetail').innerHTML = [inv.sender.email, inv.sender.phone, inv.sender.address].filter(Boolean).join('<br>') || '—';
-    document.getElementById('prevClientName').textContent  = inv.client.name + (inv.client.company ? ` · ${inv.client.company}` : '');
-    document.getElementById('prevClientDetail').innerHTML  = [inv.client.email, inv.client.address].filter(Boolean).join('<br>') || '—';
+    document.getElementById('prevDates').innerHTML      = 'Issued: ' + (p.invoice.date || '\u2014') + '<br>Due: ' + (p.invoice.due || '\u2014');
+    document.getElementById('prevSenderName').textContent   = p.sender.name;
+    document.getElementById('prevSenderDetail').innerHTML   = [p.sender.email, p.sender.phone, p.sender.address].filter(Boolean).join('<br>') || '\u2014';
+    document.getElementById('prevClientName').textContent   = p.client.name + (p.client.company ? ' \u00b7 ' + p.client.company : '');
+    document.getElementById('prevClientDetail').innerHTML   = [p.client.email, p.client.address].filter(Boolean).join('<br>') || '\u2014';
 
-    document.getElementById('prevItems').innerHTML = inv.items.map(i => `
-      <tr class="border-b border-slate-50 last:border-0">
-        <td class="py-2.5 text-xs text-slate-700">${i.desc}</td>
-        <td class="py-2.5 text-xs text-slate-500 text-center">${i.qty}</td>
-        <td class="py-2.5 text-xs text-slate-500 text-right tabular-nums">${fmt(i.rate, c)}</td>
-        <td class="py-2.5 text-xs font-semibold text-slate-800 text-right tabular-nums">${fmt(i.amount, c)}</td>
-      </tr>`).join('');
+    const sub  = p.items.reduce((s,i) => s + parseFloat(i.qty||0) * parseFloat(i.rate||0), 0);
+    const tax  = sub * ((parseFloat(p.invoice.taxRate||0)) / 100);
+    const disc = parseFloat(p.invoice.discount||0);
+    const tot  = Math.max(0, sub + tax - disc);
 
-    document.getElementById('prevSubtotal').textContent = fmt(inv.subtotal, c);
-    document.getElementById('prevTax').textContent      = inv.taxRate > 0 ? `${fmt(inv.taxAmount, c)} (${inv.taxRate}%)` : '—';
-    document.getElementById('prevDisc').textContent     = parseFloat(inv.discount) > 0 ? `- ${fmt(inv.discount, c)}` : '—';
-    document.getElementById('prevTotal').textContent    = fmt(inv.total, c);
+    document.getElementById('prevItems').innerHTML = p.items.map(i => {
+      const amt = parseFloat(i.qty||0) * parseFloat(i.rate||0);
+      return '<tr class="border-b border-slate-50 last:border-0">' +
+        '<td class="py-2.5 text-xs text-slate-700">' + (i.desc||'') + '</td>' +
+        '<td class="py-2.5 text-xs text-slate-500 text-center">' + i.qty + '</td>' +
+        '<td class="py-2.5 text-xs text-slate-500 text-right tabular-nums">' + fmtMoney(i.rate, c) + '</td>' +
+        '<td class="py-2.5 text-xs font-bold text-slate-800 text-right tabular-nums">' + fmtMoney(amt, c) + '</td></tr>';
+    }).join('');
+
+    document.getElementById('prevSubtotal').textContent = fmtMoney(sub,  c);
+    document.getElementById('prevTax').textContent      = parseFloat(p.invoice.taxRate||0) > 0 ? fmtMoney(tax, c) + ' (' + p.invoice.taxRate + '%)' : '\u2014';
+    document.getElementById('prevDisc').textContent     = disc > 0 ? '- ' + fmtMoney(disc, c) : '\u2014';
+    document.getElementById('prevTotal').textContent    = fmtMoney(tot, c);
     document.getElementById('prevTotals').style.display = 'block';
 
-    if (inv.notes) {
-      document.getElementById('prevNotesText').textContent = inv.notes;
+    if (p.invoice.notes) {
+      document.getElementById('prevNotesText').textContent = p.invoice.notes;
       document.getElementById('prevNotes').style.display   = 'block';
     }
   }
 
-  // ── Clear form ────────────────────────────────────────────
+  // ── Clear form ──────────────────────────────────────────────────
   function clearForm() {
     if (!confirm('Clear the form and start a new invoice?')) return;
-    ['clientName','clientCompany','clientEmail','clientAddress'].forEach(id => {
+    ['clientName','clientCompany','clientEmail','clientAddress','invNotes','invTax','invDiscount'].forEach(id => {
       const el = document.getElementById(id); if (el) el.value = '';
     });
-    document.getElementById('itemsBody').innerHTML = `
-      <div class="grid grid-cols-[1fr_80px_100px_90px_36px] gap-2 py-3 items-center" data-row="0">
-        <input type="text"   data-field="desc" placeholder="Web design services"
-               class="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
-        <input type="number" data-field="qty"  placeholder="1" min="0" step="any"
-               class="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-center placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
-        <input type="number" data-field="rate" placeholder="0.00" min="0" step="0.01"
-               class="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-right placeholder:text-slate-400 transition focus:bg-white focus:border-brand" />
-        <span data-amt class="text-sm font-semibold text-slate-700 text-right tabular-nums">—</span>
-        <button onclick="removeRow(this)" class="w-7 h-7 rounded-md text-slate-300 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition text-base leading-none">✕</button>
-      </div>`;
-    document.getElementById('itemsBody').addEventListener('input', updateLiveTotals);
-    ['invNotes','invDiscount','invTax'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-    setDefaultDates();
+    document.getElementById('itemsBody').innerHTML = '';
+    addRow();
+    setDefaults();
+    document.getElementById('invNumber').value = getNextInvoiceNumber();
     updateLiveTotals();
     document.getElementById('prevTotals').style.display = 'none';
     document.getElementById('prevNotes').style.display  = 'none';
   }
 
-  // ── Wire up listeners ─────────────────────────────────────
+  // ── Init ────────────────────────────────────────────────────────
   window.addEventListener('load', () => {
     loadMyDetails();
-    setDefaultDates();
+    setDefaults();
+    addRow();
     document.getElementById('itemsBody').addEventListener('input', updateLiveTotals);
     document.getElementById('invTax')?.addEventListener('input', updateLiveTotals);
     document.getElementById('invDiscount')?.addEventListener('input', updateLiveTotals);
-    document.getElementById('invCurrency')?.addEventListener('change', updateLiveTotals);
   });
 </script>
-
 </body>
 </html>
