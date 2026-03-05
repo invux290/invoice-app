@@ -190,3 +190,4 @@ app.get('/app.html', (req, res) => res.sendFile(path.join(__dirname, 'public', '
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log('InvoiceKit running on port ' + PORT));
+
