@@ -1,4 +1,4 @@
-﻿require('dotenv').config();
+require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
@@ -9,7 +9,9 @@ const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
-app.get('/', (req, res) => res.sendFile(require('path').join(__dirname, 'public/landing.html'))););
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'landing.html'));
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
 let invoiceCounter = parseInt(process.env.INVOICE_COUNTER || '1');
@@ -394,9 +396,6 @@ if (body.logo && typeof body.logo === 'string' && body.logo.includes('base64,'))
 
 const PORT = process.env.PORT || 3000;
 
-app.get('/app', (req, res) => res.sendFile(require('path').join(__dirname, 'public/index.html')));
-
 app.listen(PORT, () => {
   console.log('InvoiceKit running on port ' + PORT);
 });
-
