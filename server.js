@@ -1,4 +1,4 @@
-require('dotenv').config();
+﻿require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
@@ -40,9 +40,9 @@ app.post('/api/invoice', (req, res) => {
 
     const symbols = {
       USD: '$',
-      EUR: '�',
-      GBP: '�',
-      INR: '?',
+      EUR: '€',
+      GBP: '£',
+      INR: '₹',
       CAD: 'CA$',
       AUD: 'A$'
     };
@@ -118,7 +118,7 @@ app.post('/api/invoice', (req, res) => {
       .fontSize(26)
       .text('INVOICE', M, 25);
    
-    // -- Logo Rendering -------------------------
+    // ── Logo Rendering ─────────────────────────
 
 if (body.logo && typeof body.logo === 'string' && body.logo.includes('base64,')) {
   try {
