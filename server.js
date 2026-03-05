@@ -115,6 +115,30 @@ app.post('/api/invoice', (req, res) => {
       .font('Helvetica-Bold')
       .fontSize(26)
       .text('INVOICE', M, 25);
+   
+    // ── Logo Rendering ─────────────────────────
+
+if (body.logo && typeof body.logo === 'string' && body.logo.includes('base64,')) {
+  try {
+    const base64Data = body.logo.split('base64,')[1];
+    const imageBuffer = Buffer.from(base64Data, 'base64');
+
+    const logoWidth = 120;
+    const logoHeight = 60;
+
+    const logoX = W - M - logoWidth;
+    const logoY = 15;
+
+    doc.image(imageBuffer, logoX, logoY, {
+      fit: [logoWidth, logoHeight],
+      align: 'right',
+      valign: 'center'
+    });
+
+  } catch (err) {
+    console.log("Logo failed to render:", err.message);
+  }
+}
 
     doc.fontSize(11)
       .font('Helvetica')
