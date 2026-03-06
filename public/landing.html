@@ -595,7 +595,7 @@
       <div class="price-card reveal" style="padding:36px 32px;transition-delay:0.05s;">
         <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px;">Free</div>
         <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:6px;">
-          <span class="display" style="font-size:2.6rem;color:var(--ink);">$0</span>
+          <span class="display" style="font-size:2.6rem;color:var(--ink);"><span id="planFreePrice">$0</span></span>
           <span style="font-size:0.85rem;color:var(--ink-faint);">/month</span>
         </div>
         <p style="font-size:0.85rem;color:var(--ink-soft);margin-bottom:28px;">Perfect for getting started.</p>
@@ -627,7 +627,7 @@
         </div>
         <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--sky);margin-bottom:14px;">Pro</div>
         <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:6px;">
-          <span class="display" style="font-size:2.6rem;color:var(--ink);">$12</span>
+          <span class="display" style="font-size:2.6rem;color:var(--ink);"><span id="planProPrice">$12</span></span>
           <span style="font-size:0.85rem;color:var(--ink-faint);">/month</span>
         </div>
         <p style="font-size:0.85rem;color:var(--ink-soft);margin-bottom:28px;">For active freelancers.</p>
@@ -660,7 +660,7 @@
       <div class="price-card reveal" style="padding:36px 32px;transition-delay:0.15s;">
         <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px;">Business</div>
         <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:6px;">
-          <span class="display" style="font-size:2.6rem;color:var(--ink);">$39</span>
+          <span class="display" style="font-size:2.6rem;color:var(--ink);"><span id="planBizPrice">$39</span></span>
           <span style="font-size:0.85rem;color:var(--ink-faint);">/month</span>
         </div>
         <p style="font-size:0.85rem;color:var(--ink-soft);margin-bottom:28px;">For teams and agencies.</p>
@@ -904,44 +904,87 @@ window.addEventListener('load',function(){
   }
 });
 </script>
+
 <script>
 (function(){
-  var m={
-    IN:{f:'\u20b90',p:'\u20b9499'},
-    US:{f:'$0',p:'$6'},
-    GB:{f:'\u00a30',p:'\u00a35'},
-    AU:{f:'A$0',p:'A$10'},
-    CA:{f:'CA$0',p:'CA$8'},
-    NZ:{f:'NZ$0',p:'NZ$10'},
-    SG:{f:'S$0',p:'S$8'},
-    DE:{f:'\u20ac0',p:'\u20ac5'},
-    FR:{f:'\u20ac0',p:'\u20ac5'},
-    IT:{f:'\u20ac0',p:'\u20ac5'},
-    ES:{f:'\u20ac0',p:'\u20ac5'},
-    NL:{f:'\u20ac0',p:'\u20ac5'},
-    PT:{f:'\u20ac0',p:'\u20ac5'},
-    BE:{f:'\u20ac0',p:'\u20ac5'},
-    AT:{f:'\u20ac0',p:'\u20ac5'},
-    CH:{f:'CHF 0',p:'CHF 5'},
-    SE:{f:'kr0',p:'kr68'},
-    NO:{f:'kr0',p:'kr68'},
-    DK:{f:'kr0',p:'kr42'},
-    JP:{f:'\u00a50',p:'\u00a5900'},
-    KR:{f:'\u20a90',p:'\u20a98000'},
-    AE:{f:'AED 0',p:'AED 22'},
-    SA:{f:'SAR 0',p:'SAR 22'},
-    BR:{f:'R$0',p:'R$30'},
-    ZA:{f:'R0',p:'R110'},
-    NG:{f:'\u20a60',p:'\u20a64500'},
-    PK:{f:'\u20a80',p:'\u20a81700'},
-    MX:{f:'$0',p:'$110'}
+  // Currency map: country -> [free, pro, biz]
+  var m = {
+    IN: ['₹0',       '₹499',   '₹999'],
+    US: ['$0',           '$12',         '$39'],
+    GB: ['£0',      '£8',     '£25'],
+    AU: ['A$0',          'A$18',        'A$55'],
+    CA: ['CA$0',         'CA$16',       'CA$50'],
+    NZ: ['NZ$0',         'NZ$20',       'NZ$60'],
+    SG: ['S$0',          'S$16',        'S$50'],
+    DE: ['€0',      '€11',    '€35'],
+    FR: ['€0',      '€11',    '€35'],
+    IT: ['€0',      '€11',    '€35'],
+    ES: ['€0',      '€11',    '€35'],
+    NL: ['€0',      '€11',    '€35'],
+    PT: ['€0',      '€11',    '€35'],
+    BE: ['€0',      '€11',    '€35'],
+    AT: ['€0',      '€11',    '€35'],
+    CH: ['CHF 0',        'CHF 11',      'CHF 35'],
+    SE: ['kr0',          'kr130',       'kr400'],
+    NO: ['kr0',          'kr130',       'kr400'],
+    DK: ['kr0',          'kr85',        'kr265'],
+    JP: ['¥0',      '¥1800',  '¥5500'],
+    KR: ['₩0',      '₩16000', '₩50000'],
+    AE: ['AED 0',        'AED 44',      'AED 143'],
+    SA: ['SAR 0',        'SAR 45',      'SAR 146'],
+    BR: ['R$0',          'R$60',        'R$195'],
+    ZA: ['R0',           'R220',        'R700'],
+    NG: ['₦0',      '₦9000',  '₦28000'],
+    PK: ['Rs0',          'Rs3400',      'Rs10800'],
+    BD: ['৳0',      '৳1300',  '৳4000'],
+    MX: ['$0',           '$200',        'MXN 650'],
+    PH: ['₱0',      '₱680',   '₱2100'],
+    TH: ['฿0',      '฿430',   '฿1350'],
+    ID: ['Rp0',          'Rp185000',    'Rp580000'],
+    MY: ['RM0',          'RM57',        'RM180'],
+    EG: ['EGP0',         'EGP380',      'EGP1200']
   };
-  function s(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
-  function a(c){s('statPrice',c.f);s('planFreePrice',c.f);s('planProPrice',c.p);}
+
+  function s(id, v) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = v;
+  }
+
+  function apply(cc) {
+    var c = m[cc] || m['US']; // default USD
+    s('planFreePrice', c[0]);
+    s('planProPrice',  c[1]);
+    s('planBizPrice',  c[2]);
+    s('statPrice',     c[0]);
+  }
+
+  // Try ipapi.co first, then ipwho.is as backup
   fetch('https://ipapi.co/json/')
-    .then(function(r){return r.json();})
-    .then(function(d){var cc=(d.country_code||'IN').toUpperCase();a(m[cc]||m['IN']);})
-    .catch(function(){});
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d && d.country_code) {
+        apply(d.country_code.toUpperCase());
+      } else { throw new Error('no code'); }
+    })
+    .catch(function() {
+      // Backup API
+      fetch('https://ipwho.is/')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (d && d.country_code) apply(d.country_code.toUpperCase());
+        })
+        .catch(function() {
+          // Last resort: use browser language
+          var lang = navigator.language || '';
+          if (lang.startsWith('en-IN')) apply('IN');
+          else if (lang.startsWith('en-GB')) apply('GB');
+          else if (lang.startsWith('en-AU')) apply('AU');
+          else if (lang.startsWith('de')) apply('DE');
+          else if (lang.startsWith('fr')) apply('FR');
+          else if (lang.startsWith('ja')) apply('JP');
+          else apply('US');
+        });
+    });
 })();
 </script>
 </body>
