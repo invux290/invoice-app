@@ -16,313 +16,225 @@ async function getBrowser() {
   if (!browser || !browser.isConnected()) {
     browser = await puppeteer.launch({
       headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+      args: ['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage']
     });
   }
   return browser;
 }
 
-function fmtMoney(n, sym) {
-  const val = parseFloat(n || 0);
-  return sym + val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function money(n, sym) {
+  return sym + parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
-function fmtDate(d) {
+function date(d) {
   if (!d) return '—';
   const dt = new Date(d);
-  return isNaN(dt) ? d : dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  return isNaN(dt) ? d : dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
 }
-function esc(s) {
-  return String(s || '')
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function e(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-function buildHTML(sender, client, items, invoice, sym, subtotal, taxRate, taxAmt, discount, total, invNumber) {
-  const currency   = invoice.currency || 'USD';
-  const hasTax     = taxRate > 0;
-  const hasDisc    = discount > 0;
-  const hasNotes   = invoice.notes && invoice.notes.trim();
+function buildHTML(sender, client, items, invoice, sym, sub, taxRate, taxAmt, disc, total, num) {
+  const hasTax  = taxRate > 0;
+  const hasDisc = disc > 0;
+  const hasNotes= !!(invoice.notes && invoice.notes.trim());
+  const currency= invoice.currency || 'USD';
 
-  const senderDetail = [sender.email, sender.phone, sender.address].filter(Boolean).join('<br>');
-  const clientDetail = [client.company, client.email, client.address].filter(Boolean).join('<br>');
+  const senderDetail = [sender.email, sender.phone, sender.address].filter(Boolean).map(e).join('<br>');
+  const clientDetail = [client.company, client.email, client.address].filter(Boolean).map(e).join(' &nbsp;·&nbsp; ');
 
-  const itemRows = items.map((item, i) => {
-    const qty    = parseFloat(item.qty  || 0);
-    const rate   = parseFloat(item.rate || 0);
-    const amount = qty * rate;
-    const desc   = esc(item.desc || item.description || item.name || '');
-    return `
-    <div class="item-row ${i % 2 === 1 ? 'odd' : ''}">
-      <span class="col-desc">${desc}</span>
-      <span class="col-c">${qty}</span>
-      <span class="col-r">${fmtMoney(rate, sym)}</span>
-      <span class="col-r amt">${fmtMoney(amount, sym)}</span>
+  const rows = items.map((item, i) => {
+    const qty = parseFloat(item.qty||0), rate = parseFloat(item.rate||0), amt = qty*rate;
+    return `<div class="item-row ${i%2===1?'odd':''}">
+      <span class="td-desc">${e(item.desc||item.description||item.name||'')}</span>
+      <span class="td-c">${qty}</span>
+      <span class="td-r">${money(rate,sym)}</span>
+      <span class="td-r bold">${money(amt,sym)}</span>
     </div>`;
   }).join('');
+
+  const totRows = `
+    <div class="tot-row"><span class="tot-lbl">Subtotal</span><span class="tot-val">${money(sub,sym)}</span></div>
+    ${hasTax?`<div class="tot-row surface"><span class="tot-lbl">Tax (${taxRate}%)</span><span class="tot-val">${money(taxAmt,sym)}</span></div>`:''}
+    ${hasDisc?`<div class="tot-row"><span class="tot-lbl">Discount</span><span class="tot-val red">– ${money(disc,sym)}</span></div>`:''}
+  `;
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --blue:#1A56DB; --navy:#0F2A6E; --blue-mid:#2563EB;
+  --blue-soft:#EFF6FF; --blue-pale:#DBEAFE;
+  --ink:#0F172A; --ink-mid:#1E293B; --ink-soft:#475569;
+  --ink-faint:#94A3B8; --border:#E2E8F0; --surface:#F8FAFC; --white:#FFFFFF;
+}
+html,body{
+  width:794px; font-family:'DM Sans',sans-serif;
+  background:var(--white); color:var(--ink);
+  -webkit-font-smoothing:antialiased; font-size:11px; line-height:1.5;
+}
+.page{display:grid; grid-template-columns:210px 1fr; min-height:100%;}
 
-  :root {
-    --blue:        #1A56DB;
-    --blue-dark:   #1447B7;
-    --blue-mid:    #2563EB;
-    --blue-soft:   #EFF6FF;
-    --blue-border: #DBEAFE;
-    --ink:         #0B1120;
-    --ink-mid:     #2D3748;
-    --ink-soft:    #64748B;
-    --ink-faint:   #94A3B8;
-    --border:      #E2E8F2;
-    --surface:     #F7F9FC;
-    --white:       #FFFFFF;
-  }
+/* SIDEBAR */
+.sidebar{background:var(--navy); position:relative; overflow:hidden;}
+.orb1{position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.05);}
+.orb2{position:absolute;bottom:60px;left:-40px;width:160px;height:160px;border-radius:50%;background:rgba(26,86,219,0.25);}
+.sb-stripe{position:absolute;right:0;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--blue-mid),transparent 70%);}
+.sb-inner{position:relative;z-index:1;padding:40px 26px;height:100%;display:flex;flex-direction:column;}
 
-  html, body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--white);
-    color: var(--ink);
-    -webkit-font-smoothing: antialiased;
-    width: 680px;
-  }
+.logo-mark{width:36px;height:36px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.14);border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:32px;}
 
-  /* ── CARD WRAPPER ── */
-  .card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    overflow: hidden;
-    width: 680px;
-  }
+.inv-word{font-size:8px;font-weight:700;letter-spacing:0.2em;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:5px;}
+.inv-num{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--white);letter-spacing:-0.01em;margin-bottom:32px;line-height:1.3;}
 
-  /* ── HEADER ── */
-  .prev-head {
-    background: linear-gradient(145deg, #1447B7 0%, #1A56DB 45%, #2563EB 100%);
-    padding: 28px 28px 24px;
-    position: relative;
-    overflow: hidden;
-  }
-  .orb1 {
-    position: absolute; top: -30px; right: -30px;
-    width: 150px; height: 150px; border-radius: 50%;
-    background: rgba(255,255,255,0.07);
-  }
-  .orb2 {
-    position: absolute; bottom: -25px; left: 40px;
-    width: 100px; height: 100px; border-radius: 50%;
-    background: rgba(255,255,255,0.05);
-  }
-  .head-inner {
-    position: relative; z-index: 1;
-    display: flex; justify-content: space-between; align-items: flex-start;
-  }
-  .inv-label {
-    font-size: 8px; font-weight: 700;
-    color: rgba(255,255,255,0.45);
-    letter-spacing: 0.14em; text-transform: uppercase;
-    margin-bottom: 7px;
-  }
-  .inv-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 22px; font-weight: 500;
-    color: white; letter-spacing: -0.02em;
-  }
-  .head-dates { text-align: right; }
-  .date-group { margin-bottom: 10px; }
-  .date-group:last-child { margin-bottom: 0; }
-  .date-lbl {
-    font-size: 7.5px; font-weight: 700;
-    color: rgba(255,255,255,0.4);
-    letter-spacing: 0.12em; text-transform: uppercase;
-    margin-bottom: 3px;
-  }
-  .date-val {
-    font-size: 13px; font-weight: 700;
-    color: rgba(255,255,255,0.9);
-    line-height: 1;
-  }
+.sb-sec{margin-bottom:26px;}
+.sb-lbl{font-size:7px;font-weight:700;letter-spacing:0.18em;color:rgba(255,255,255,0.28);text-transform:uppercase;margin-bottom:7px;}
+.sb-name{font-size:12px;font-weight:700;color:var(--white);line-height:1.3;margin-bottom:4px;}
+.sb-detail{font-size:9.5px;color:rgba(255,255,255,0.38);line-height:1.85;}
 
-  /* ── PARTIES ── */
-  .prev-parties {
-    display: grid; grid-template-columns: 1fr 1fr;
-    border-bottom: 1px solid var(--border);
-  }
-  .prev-party { padding: 18px 22px; }
-  .prev-party:first-child { border-right: 1px solid var(--border); }
-  .party-lbl {
-    font-size: 7.5px; font-weight: 700;
-    color: var(--blue); text-transform: uppercase;
-    letter-spacing: 0.1em; margin-bottom: 6px;
-  }
-  .party-name {
-    font-size: 13px; font-weight: 700;
-    color: var(--ink); margin-bottom: 4px; line-height: 1.3;
-  }
-  .party-detail {
-    font-size: 11px; color: var(--ink-faint);
-    line-height: 1.7;
-  }
+.sb-div{height:1px;background:rgba(255,255,255,0.07);margin:0 0 24px;}
 
-  /* ── ITEMS TABLE ── */
-  .items-wrap { padding: 18px 22px 0; }
-  .items-head {
-    display: grid; grid-template-columns: 1fr 54px 100px 100px;
-    gap: 8px; padding-bottom: 10px;
-    border-bottom: 1.5px solid var(--border);
-  }
-  .items-head span {
-    font-size: 8px; font-weight: 700;
-    color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.08em;
-  }
-  .items-head span.col-c { text-align: center; }
-  .items-head span.col-r { text-align: right; }
+.date-blk{margin-bottom:16px;}
+.date-lbl{font-size:7px;font-weight:700;letter-spacing:0.16em;color:rgba(255,255,255,0.28);text-transform:uppercase;margin-bottom:3px;}
+.date-val{font-size:11.5px;font-weight:600;color:rgba(255,255,255,0.82);}
+.date-val.due{color:#60A5FA;}
 
-  .item-row {
-    display: grid; grid-template-columns: 1fr 54px 100px 100px;
-    gap: 8px; padding: 10px 0;
-    border-bottom: 1px solid var(--surface);
-    align-items: center;
-  }
-  .item-row.odd { background: var(--surface); margin: 0 -22px; padding: 10px 22px; }
-  .col-desc { font-size: 12px; font-weight: 500; color: var(--ink); }
-  .col-c    { font-size: 11px; color: var(--ink-soft); text-align: center; }
-  .col-r    { font-size: 11px; color: var(--ink-soft); text-align: right; font-variant-numeric: tabular-nums; }
-  .col-r.amt { font-size: 12px; font-weight: 700; color: var(--ink); }
+.sb-foot{margin-top:auto;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);}
+.sb-foot-txt{font-size:8px;color:rgba(255,255,255,0.18);line-height:1.9;}
 
-  /* ── TOTALS ── */
-  .prev-totals { padding: 14px 22px; border-top: 1px solid var(--border); }
-  .tot-row {
-    display: flex; justify-content: space-between;
-    font-size: 11px; margin-bottom: 7px;
-  }
-  .tot-row span:first-child { color: var(--ink-faint); }
-  .tot-row span:last-child  { font-weight: 600; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-  .total-band {
-    display: flex; justify-content: space-between; align-items: center;
-    background: linear-gradient(135deg, var(--blue-soft) 0%, #DBEAFE 100%);
-    border: 1px solid var(--blue-border);
-    border-radius: 12px; padding: 13px 16px; margin-top: 12px;
-  }
-  .total-lbl { font-size: 13px; font-weight: 700; color: var(--blue); }
-  .total-amt { font-size: 16px; font-weight: 800; color: var(--blue); font-variant-numeric: tabular-nums; }
+/* MAIN */
+.main{background:var(--white);padding:40px 36px 36px;display:flex;flex-direction:column;}
 
-  /* ── NOTES ── */
-  .notes-wrap { padding: 0 22px 0; border-top: 1px solid var(--border); }
-  .notes-lbl {
-    font-size: 7.5px; font-weight: 700;
-    color: var(--ink-faint); text-transform: uppercase;
-    letter-spacing: 0.1em; padding-top: 14px; margin-bottom: 7px;
-  }
-  .notes-body {
-    font-size: 11px; color: var(--ink-soft);
-    line-height: 1.7; padding-bottom: 16px;
-    white-space: pre-wrap;
-  }
+.billto{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:15px 18px;margin-bottom:32px;}
+.bt-lbl{font-size:7px;font-weight:700;letter-spacing:0.18em;color:var(--blue);text-transform:uppercase;margin-bottom:5px;}
+.bt-name{font-size:14px;font-weight:800;color:var(--ink);letter-spacing:-0.02em;margin-bottom:3px;}
+.bt-detail{font-size:10px;color:var(--ink-faint);line-height:1.7;}
 
-  /* ── FOOTER ── */
-  .prev-footer {
-    padding: 11px 22px;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .footer-left { display: flex; align-items: center; gap: 7px; }
-  .status-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #10B981;
-    box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
-  }
-  .footer-status { font-size: 11px; font-weight: 600; color: var(--ink-soft); }
-  .footer-currency {
-    font-size: 10px; font-weight: 700; color: var(--blue);
-    background: var(--blue-soft); padding: 3px 11px; border-radius: 20px;
-  }
+.sec-label{font-size:7px;font-weight:700;letter-spacing:0.18em;color:var(--ink-faint);text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* TABLE */
+.table-wrap{margin-bottom:22px;}
+.table-head{display:grid;grid-template-columns:1fr 48px 84px 84px;gap:8px;padding:9px 13px;background:var(--ink);border-radius:8px 8px 0 0;}
+.th{font-size:7px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.55);}
+.th.r{text-align:right;} .th.c{text-align:center;}
+.table-body{border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;}
+.item-row{display:grid;grid-template-columns:1fr 48px 84px 84px;gap:8px;padding:10px 13px;align-items:center;border-bottom:1px solid var(--border);}
+.item-row:last-child{border-bottom:none;}
+.item-row.odd{background:var(--surface);}
+.td-desc{font-size:10.5px;font-weight:500;color:var(--ink-mid);}
+.td-c{font-size:10px;color:var(--ink-faint);text-align:center;}
+.td-r{font-size:10px;color:var(--ink-faint);text-align:right;font-variant-numeric:tabular-nums;}
+.td-r.bold{font-size:10.5px;font-weight:700;color:var(--ink);}
+
+/* TOTALS */
+.totals-area{display:flex;justify-content:flex-end;margin-bottom:26px;}
+.totals-box{width:232px;}
+.tot-rows{border:1px solid var(--border);border-radius:9px 9px 0 0;overflow:hidden;}
+.tot-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;font-size:10px;border-bottom:1px solid var(--border);background:var(--white);}
+.tot-row:last-child{border-bottom:none;}
+.tot-row.surface{background:var(--surface);}
+.tot-lbl{color:var(--ink-soft);}
+.tot-val{font-weight:600;color:var(--ink-mid);font-variant-numeric:tabular-nums;}
+.tot-val.red{color:#DC2626;}
+.total-due{display:flex;justify-content:space-between;align-items:center;background:var(--blue);border-radius:0 0 9px 9px;padding:12px 14px;}
+.total-due-lbl{font-size:9px;font-weight:700;letter-spacing:0.06em;color:rgba(255,255,255,0.75);text-transform:uppercase;}
+.total-due-amt{font-size:17px;font-weight:800;color:var(--white);font-variant-numeric:tabular-nums;letter-spacing:-0.02em;}
+
+/* NOTES */
+.notes-box{border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;overflow:hidden;margin-bottom:28px;}
+.notes-head{background:var(--surface);padding:7px 13px;font-size:7px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-faint);border-bottom:1px solid var(--border);}
+.notes-body{padding:11px 13px;font-size:10px;color:var(--ink-soft);line-height:1.8;white-space:pre-wrap;background:var(--white);}
+
+/* THANK YOU */
+.thankyou{margin-top:auto;text-align:center;padding-top:22px;border-top:1px solid var(--border);}
+.ty-main{font-size:11.5px;font-weight:600;color:var(--ink-faint);letter-spacing:0.01em;}
+.ty-sub{font-size:8.5px;color:var(--border);margin-top:2px;}
 </style>
 </head>
 <body>
-<div class="card">
+<div class="page">
 
-  <!-- HEADER -->
-  <div class="prev-head">
-    <div class="orb1"></div>
-    <div class="orb2"></div>
-    <div class="head-inner">
-      <div>
-        <div class="inv-label">Invoice</div>
-        <div class="inv-num">${esc(invNumber)}</div>
+  <div class="sidebar">
+    <div class="orb1"></div><div class="orb2"></div><div class="sb-stripe"></div>
+    <div class="sb-inner">
+      <div class="logo-mark">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <rect x="2" y="3" width="16" height="2.5" rx="1" fill="white"/>
+          <rect x="2" y="8" width="11" height="2" rx="1" fill="rgba(255,255,255,0.55)"/>
+          <rect x="2" y="12.5" width="7.5" height="2" rx="1" fill="rgba(255,255,255,0.35)"/>
+        </svg>
       </div>
-      <div class="head-dates">
-        <div class="date-group">
-          <div class="date-lbl">Issued</div>
-          <div class="date-val">${fmtDate(invoice.date)}</div>
-        </div>
-        <div class="date-group">
-          <div class="date-lbl">Due Date</div>
-          <div class="date-val">${fmtDate(invoice.due)}</div>
-        </div>
+
+      <div class="inv-word">Invoice</div>
+      <div class="inv-num">${e(num)}</div>
+
+      <div class="sb-sec">
+        <div class="sb-lbl">From</div>
+        <div class="sb-name">${e(sender.name)}</div>
+        <div class="sb-detail">${senderDetail||'—'}</div>
+      </div>
+
+      <div class="sb-div"></div>
+
+      <div class="date-blk">
+        <div class="date-lbl">Issue Date</div>
+        <div class="date-val">${date(invoice.date)}</div>
+      </div>
+      <div class="date-blk">
+        <div class="date-lbl">Due Date</div>
+        <div class="date-val due">${date(invoice.due)}</div>
+      </div>
+
+      <div class="sb-foot">
+        <div class="sb-foot-txt">InvoiceKit<br>invoicekit.onrender.com</div>
       </div>
     </div>
   </div>
 
-  <!-- PARTIES -->
-  <div class="prev-parties">
-    <div class="prev-party">
-      <div class="party-lbl">From</div>
-      <div class="party-name">${esc(sender.name)}</div>
-      <div class="party-detail">${senderDetail || '—'}</div>
+  <div class="main">
+    <div class="billto">
+      <div class="bt-lbl">Bill To</div>
+      <div class="bt-name">${e(client.name)}</div>
+      <div class="bt-detail">${clientDetail||'—'}</div>
     </div>
-    <div class="prev-party">
-      <div class="party-lbl">Bill To</div>
-      <div class="party-name">${esc(client.name)}</div>
-      <div class="party-detail">${clientDetail || '—'}</div>
-    </div>
-  </div>
 
-  <!-- ITEMS -->
-  <div class="items-wrap">
-    <div class="items-head">
-      <span>Item</span>
-      <span class="col-c">Qty</span>
-      <span class="col-r">Rate</span>
-      <span class="col-r">Amount</span>
+    <div class="sec-label">Line Items</div>
+    <div class="table-wrap">
+      <div class="table-head">
+        <span class="th">Description</span>
+        <span class="th c">Qty</span>
+        <span class="th r">Rate</span>
+        <span class="th r">Amount</span>
+      </div>
+      <div class="table-body">${rows}</div>
     </div>
-    ${itemRows}
-  </div>
 
-  <!-- TOTALS -->
-  <div class="prev-totals">
-    ${hasTax || hasDisc ? `
-    <div class="tot-row"><span>Subtotal</span><span>${fmtMoney(subtotal, sym)}</span></div>` : ''}
-    ${hasTax ? `
-    <div class="tot-row"><span>Tax (${taxRate}%)</span><span>${fmtMoney(taxAmt, sym)}</span></div>` : ''}
-    ${hasDisc ? `
-    <div class="tot-row"><span>Discount</span><span style="color:#DC2626;">– ${fmtMoney(discount, sym)}</span></div>` : ''}
-    <div class="total-band">
-      <span class="total-lbl">Total Due</span>
-      <span class="total-amt">${fmtMoney(total, sym)}</span>
+    <div class="totals-area">
+      <div class="totals-box">
+        <div class="tot-rows">${totRows}</div>
+        <div class="total-due">
+          <span class="total-due-lbl">Total Due</span>
+          <span class="total-due-amt">${money(total,sym)}</span>
+        </div>
+      </div>
     </div>
-  </div>
 
-  ${hasNotes ? `
-  <!-- NOTES -->
-  <div class="notes-wrap">
-    <div class="notes-lbl">Notes / Payment Terms</div>
-    <div class="notes-body">${esc(invoice.notes.trim())}</div>
-  </div>` : ''}
+    ${hasNotes?`
+    <div class="sec-label">Notes</div>
+    <div class="notes-box">
+      <div class="notes-head">Payment Terms</div>
+      <div class="notes-body">${e(invoice.notes.trim())}</div>
+    </div>`:''}
 
-  <!-- FOOTER -->
-  <div class="prev-footer">
-    <div class="footer-left">
-      <div class="status-dot"></div>
-      <span class="footer-status">Generated by InvoiceKit</span>
+    <div class="thankyou">
+      <div class="ty-main">Thank you for your business.</div>
+      <div class="ty-sub">Generated by InvoiceKit</div>
     </div>
-    <span class="footer-currency">${esc(currency)}</span>
   </div>
 
 </div>
@@ -332,52 +244,48 @@ function buildHTML(sender, client, items, invoice, sym, subtotal, taxRate, taxAm
 
 app.post('/api/invoice', async (req, res) => {
   try {
-    const body    = req.body || {};
-    const sender  = body.sender  || {};
-    const client  = body.client  || {};
-    const items   = Array.isArray(body.items) ? body.items : [];
-    const invoice = body.invoice || {};
+    const body   = req.body || {};
+    const sender = body.sender  || {};
+    const client = body.client  || {};
+    const items  = Array.isArray(body.items) ? body.items : [];
+    const invoice= body.invoice || {};
 
     if (!sender.name)  return res.status(400).json({ error: 'Sender name is required.' });
     if (!client.name)  return res.status(400).json({ error: 'Client name is required.' });
     if (!items.length) return res.status(400).json({ error: 'At least one line item is required.' });
 
     const currency = invoice.currency || 'USD';
-    const symbols  = { USD:'$', EUR:'€', GBP:'£', INR:'₹', CAD:'CA$', AUD:'A$' };
-    const sym      = symbols[currency] || (currency + ' ');
+    const sym = { USD:'$',EUR:'€',GBP:'£',INR:'₹',CAD:'CA$',AUD:'A$' }[currency] || (currency+' ');
 
-    const subtotal  = items.reduce((s, i) => s + parseFloat(i.qty||0) * parseFloat(i.rate||0), 0);
-    const taxRate   = parseFloat(invoice.taxRate  || 0);
-    const discount  = parseFloat(invoice.discount || 0);
-    const taxAmt    = subtotal * (taxRate / 100);
-    const total     = Math.max(0, subtotal + taxAmt - discount);
-    const invNumber = invoice.number || ('INV-' + String(invoiceCounter++).padStart(4, '0'));
+    const sub     = items.reduce((s,i)=>s+parseFloat(i.qty||0)*parseFloat(i.rate||0),0);
+    const taxRate = parseFloat(invoice.taxRate ||0);
+    const disc    = parseFloat(invoice.discount||0);
+    const taxAmt  = sub*(taxRate/100);
+    const total   = Math.max(0, sub+taxAmt-disc);
+    const num     = invoice.number || ('INV-'+String(invoiceCounter++).padStart(4,'0'));
 
-    const html = buildHTML(sender, client, items, invoice, sym, subtotal, taxRate, taxAmt, discount, total, invNumber);
+    const html = buildHTML(sender,client,items,invoice,sym,sub,taxRate,taxAmt,disc,total,num);
 
     const b  = await getBrowser();
     const pg = await b.newPage();
-
-    await pg.setViewport({ width: 680, height: 800 });
+    await pg.setViewport({ width: 794, height: 1200 });
     await pg.setContent(html, { waitUntil: 'networkidle0' });
 
-    // Get exact content height — no empty space
-    const cardHeight = await pg.evaluate(() => {
-      return document.querySelector('.card').getBoundingClientRect().height;
-    });
+    // Measure exact content height — zero empty space
+    const h = await pg.evaluate(() => document.querySelector('.page').scrollHeight);
 
     const pdf = await pg.pdf({
-      width:           '680px',
-      height:          `${Math.ceil(cardHeight) + 2}px`,
+      width: '794px',
+      height: `${h + 1}px`,
       printBackground: true,
-      margin:          { top: 0, right: 0, bottom: 0, left: 0 },
-      pageRanges:      '1'
+      margin: { top: 0, right: 0, bottom: 0, left: 0 },
+      pageRanges: '1'
     });
 
     await pg.close();
 
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="invoice-${invNumber}.pdf"`);
+    res.setHeader('Content-Disposition', `attachment; filename="invoice-${num}.pdf"`);
     res.setHeader('Content-Length', pdf.length);
     res.end(pdf);
 
@@ -387,9 +295,9 @@ app.post('/api/invoice', async (req, res) => {
   }
 });
 
-app.get('/',         (req, res) => res.sendFile(path.join(__dirname, 'public', 'landing.html')));
-app.get('/app',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'app.html')));
-app.get('/app.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'app.html')));
+app.get('/',         (req,res)=>res.sendFile(path.join(__dirname,'public','landing.html')));
+app.get('/app',      (req,res)=>res.sendFile(path.join(__dirname,'public','app.html')));
+app.get('/app.html', (req,res)=>res.sendFile(path.join(__dirname,'public','app.html')));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`InvoiceKit running on port ${PORT}`));
+app.listen(PORT, ()=>console.log(`InvoiceKit on port ${PORT}`));
