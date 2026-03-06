@@ -904,5 +904,45 @@ window.addEventListener('load',function(){
   }
 });
 </script>
+<script>
+(function(){
+  var m={
+    IN:{f:'\u20b90',p:'\u20b9499'},
+    US:{f:'$0',p:'$6'},
+    GB:{f:'\u00a30',p:'\u00a35'},
+    AU:{f:'A$0',p:'A$10'},
+    CA:{f:'CA$0',p:'CA$8'},
+    NZ:{f:'NZ$0',p:'NZ$10'},
+    SG:{f:'S$0',p:'S$8'},
+    DE:{f:'\u20ac0',p:'\u20ac5'},
+    FR:{f:'\u20ac0',p:'\u20ac5'},
+    IT:{f:'\u20ac0',p:'\u20ac5'},
+    ES:{f:'\u20ac0',p:'\u20ac5'},
+    NL:{f:'\u20ac0',p:'\u20ac5'},
+    PT:{f:'\u20ac0',p:'\u20ac5'},
+    BE:{f:'\u20ac0',p:'\u20ac5'},
+    AT:{f:'\u20ac0',p:'\u20ac5'},
+    CH:{f:'CHF 0',p:'CHF 5'},
+    SE:{f:'kr0',p:'kr68'},
+    NO:{f:'kr0',p:'kr68'},
+    DK:{f:'kr0',p:'kr42'},
+    JP:{f:'\u00a50',p:'\u00a5900'},
+    KR:{f:'\u20a90',p:'\u20a98000'},
+    AE:{f:'AED 0',p:'AED 22'},
+    SA:{f:'SAR 0',p:'SAR 22'},
+    BR:{f:'R$0',p:'R$30'},
+    ZA:{f:'R0',p:'R110'},
+    NG:{f:'\u20a60',p:'\u20a64500'},
+    PK:{f:'\u20a80',p:'\u20a81700'},
+    MX:{f:'$0',p:'$110'}
+  };
+  function s(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
+  function a(c){s('statPrice',c.f);s('planFreePrice',c.f);s('planProPrice',c.p);}
+  fetch('https://ipapi.co/json/')
+    .then(function(r){return r.json();})
+    .then(function(d){var cc=(d.country_code||'IN').toUpperCase();a(m[cc]||m['IN']);})
+    .catch(function(){});
+})();
+</script>
 </body>
 </html>
