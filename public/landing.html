@@ -262,7 +262,7 @@
 
       <h1 class="display reveal" style="font-size:clamp(2.6rem,5vw,3.8rem);color:var(--ink);margin-bottom:20px;transition-delay:0.08s;">
         Invoices that look<br/>
-        <span class="display-italic" style="color:var(--sky);">seriously</span> good.
+        <span class="display-italic" style="color:var(--sky);">seriously</span><span id="gw" style="display:inline-block;margin-left:8px;transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1);"> good.</span>
       </h1>
 
       <p class="reveal" style="font-size:1.1rem;color:var(--ink-soft);line-height:1.75;max-width:420px;margin-bottom:36px;transition-delay:0.16s;">
@@ -833,6 +833,10 @@
 .btn-primary{position:relative;overflow:hidden;}
 .btn-primary::after{content:'';position:absolute;top:-50%;left:-80%;width:50%;height:200%;background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,0.35) 50%,transparent 100%);transform:skewX(-20deg);animation:shimmer 3.5s infinite;}
 @keyframes shimmer{0%{left:-80%}60%{left:130%}100%{left:130%}}
+@keyframes bounceIn{0%{transform:translateX(18px);opacity:0;}60%{transform:translateX(-4px);}80%{transform:translateX(2px);}100%{transform:translateX(0);opacity:1;}}
+@keyframes bounceOut{0%{transform:translateX(0);opacity:1;}100%{transform:translateX(-14px);opacity:0;}}
+.gw-in{animation:bounceIn 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards!important;}
+.gw-out{animation:bounceOut 0.25s ease-in forwards!important;}
 #page-transition{position:fixed;inset:0;background:#1A56DB;z-index:9999;opacity:0;pointer-events:none;transition:opacity 0.4s ease;}
 </style>
 <div id="page-transition"></div>
@@ -868,7 +872,29 @@ window.addEventListener('load',function(){
 
   // Word cycling
   var wordEl=document.querySelector('.display-italic');
-  if(wordEl){var words=['seriously','beautifully','instantly','effortlessly'];var wi=0;setInterval(function(){wordEl.style.opacity='0';wordEl.style.transform='translateY(-12px)';wordEl.style.transition='opacity 0.35s ease,transform 0.35s ease';setTimeout(function(){wi=(wi+1)%words.length;wordEl.textContent=words[wi];wordEl.style.transform='translateY(12px)';wordEl.style.opacity='0';setTimeout(function(){wordEl.style.opacity='1';wordEl.style.transform='translateY(0)';},20);},350);},2500);}
+  var gwEl=document.getElementById('gw');
+  if(wordEl){
+    var words=['seriously','beautifully','instantly','effortlessly'];
+    var wi=0;
+    wordEl.style.display='inline-block';
+    wordEl.style.transition='opacity 0.3s ease, transform 0.3s ease';
+    if(gwEl){gwEl.style.transition='transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.3s ease';}
+    setInterval(function(){
+      wordEl.style.opacity='0';
+      wordEl.style.transform='translateY(-8px)';
+      if(gwEl){gwEl.style.transform='translateX(10px)';gwEl.style.opacity='0.4';}
+      setTimeout(function(){
+        wi=(wi+1)%words.length;
+        wordEl.textContent=words[wi];
+        wordEl.style.transform='translateY(8px)';
+        setTimeout(function(){
+          wordEl.style.opacity='1';
+          wordEl.style.transform='translateY(0)';
+          if(gwEl){gwEl.style.transform='translateX(0)';gwEl.style.opacity='1';}
+        },50);
+      },300);
+    },2800);
+  }
 
   // 3D invoice tilt
   var card=document.querySelector('.invoice-card');
