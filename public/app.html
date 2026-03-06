@@ -7,500 +7,741 @@
   <link rel="icon" href="/favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: { extend: { colors: { brand: { DEFAULT:'#1A56DB', dark:'#1447B7', light:'#EFF6FF' } }, fontFamily: { sans: ['Inter','sans-serif'] } } }
-    }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    * { font-family: 'Inter', sans-serif; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --ink: #0B1120;
-      --ink-soft: #3D4A63;
-      --ink-faint: #8492A6;
-      --sky: #1A56DB;
-      --sky-light: #EFF6FF;
-      --border: #E2E8F2;
-      --surface: #F7F9FC;
-      --white: #FFFFFF;
+      --blue:       #1A56DB;
+      --blue-dark:  #1447B7;
+      --blue-mid:   #2563EB;
+      --blue-soft:  #EFF6FF;
+      --blue-border:#DBEAFE;
+      --ink:        #0B1120;
+      --ink-mid:    #2D3748;
+      --ink-soft:   #64748B;
+      --ink-faint:  #94A3B8;
+      --border:     #E8EDF5;
+      --surface:    #F7F9FC;
+      --white:      #FFFFFF;
+      --success:    #10B981;
+      --font: 'DM Sans', sans-serif;
+      --mono: 'DM Mono', monospace;
     }
-    body { background: var(--surface); color: var(--ink); }
 
-    input, select, textarea {
-      width: 100%;
-      padding: 11px 14px;
-      border-radius: 10px;
-      border: 1.5px solid #E2E8F2;
-      background: #FAFBFD;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: #0B1120;
-      transition: all 0.18s;
-      font-family: 'Inter', sans-serif;
-      outline: none;
-      -webkit-appearance: none;
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--surface);
+      color: var(--ink);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
-    input:hover, select:hover, textarea:hover {
-      border-color: #CBD5E1;
-      background: #fff;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: #1A56DB;
-      box-shadow: 0 0 0 3.5px rgba(26,86,219,0.1);
-      background: #fff;
-    }
-    input::placeholder, textarea::placeholder { 
-      color: #B0BAC9;
-      font-weight: 400;
-    }
-    select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238492A6' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      padding-right: 36px;
-      cursor: pointer;
-    }
-    input[type=date] { cursor: pointer; }
-    input[type=number] { -moz-appearance: textfield; }
-    input[type=number]::-webkit-outer-spin-button,
-    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
 
-    .label {
-      display: block;
-      font-size: 0.68rem;
-      font-weight: 700;
-      color: #8492A6;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+    /* ── NAV ── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      height: 58px;
+      display: flex; align-items: center;
     }
-    .card {
+    .nav-inner {
+      max-width: 1280px; margin: 0 auto; padding: 0 28px;
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-mark {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: var(--blue); display: flex; align-items: center; justify-content: center;
+    }
+    .logo-text { font-size: 1rem; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
+    .nav-badge {
+      font-size: 0.68rem; font-weight: 700; color: var(--blue);
+      background: var(--blue-soft); padding: 3px 9px; border-radius: 20px;
+    }
+
+    /* ── LAYOUT ── */
+    .main { max-width: 1280px; margin: 0 auto; padding: 32px 28px 80px; }
+    .page-title { font-size: 1.4rem; font-weight: 700; color: var(--ink); letter-spacing: -0.025em; }
+    .page-sub { font-size: 0.82rem; color: var(--ink-faint); margin-top: 3px; }
+    .grid { display: grid; grid-template-columns: 1fr 400px; gap: 24px; align-items: start; margin-top: 28px; }
+
+    /* ── SECTION CARDS ── */
+    .section {
       background: var(--white);
-      border: 1px solid #E8EDF5;
-      border-radius: 16px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(11,17,32,0.05), 0 1px 2px rgba(11,17,32,0.03);
-      transition: box-shadow 0.2s;
+      box-shadow: 0 1px 3px rgba(11,17,32,0.04), 0 4px 12px rgba(11,17,32,0.03);
+      transition: box-shadow 0.3s ease;
+      margin-bottom: 16px;
     }
-    .card:hover {
-      box-shadow: 0 4px 16px rgba(11,17,32,0.08), 0 1px 4px rgba(11,17,32,0.04);
+    .section:hover { box-shadow: 0 2px 8px rgba(11,17,32,0.06), 0 8px 24px rgba(11,17,32,0.05); }
+    .section-head {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 22px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(to right, #FAFBFE, var(--white));
     }
-    .card-header {
-      padding: 13px 20px;
-      border-bottom: 1px solid #F1F5FB;
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      background: #FAFBFE;
-    }
-    .card-header-icon {
-      width: 28px; height: 28px;
-      border-radius: 8px;
-      background: var(--sky-light);
+    .section-icon {
+      width: 30px; height: 30px; border-radius: 9px;
+      background: var(--blue-soft);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .card-header-title {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #1A2640;
-      letter-spacing: -0.01em;
-    }
-    .card-body { padding: 20px; }
+    .section-title { font-size: 0.82rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+    .section-body { padding: 22px; }
+    .fields { display: grid; gap: 16px; }
+    .fields-2 { grid-template-columns: 1fr 1fr; }
+    .fields-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .span-2 { grid-column: span 2; }
+    .span-3 { grid-column: span 3; }
 
-    .btn-primary {
-      width: 100%;
-      background: var(--sky);
-      color: white;
+    /* ── FLOATING LABEL INPUTS ── */
+    .field { position: relative; }
+    .field label {
+      display: block;
+      font-size: 0.68rem;
       font-weight: 700;
-      font-size: 0.9rem;
-      padding: 13px 20px;
-      border-radius: 12px;
-      border: none;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      transition: all 0.2s;
-      box-shadow: 0 4px 16px rgba(26,86,219,0.25);
-      position: relative; overflow: hidden;
+      color: var(--ink-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 6px;
+      transition: color 0.2s;
     }
-    .btn-primary::after {
-      content:''; position:absolute; top:-50%; left:-80%; width:50%; height:200%;
-      background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,0.25) 50%,transparent 100%);
-      transform:skewX(-20deg); animation:shimmer 3s infinite;
-    }
-    @keyframes shimmer{0%{left:-80%}60%{left:130%}100%{left:130%}}
-    .btn-primary:hover { background: var(--sky-dark, #1447B7); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,86,219,0.3); }
-    .btn-primary:active { transform: translateY(0); }
-    .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .field:focus-within label { color: var(--blue); }
+    .field .req { color: #F87171; font-weight: 400; text-transform: none; margin-left: 2px; }
 
-    .btn-ghost {
-      width: 100%;
-      background: white;
-      color: var(--ink-soft);
-      font-weight: 600;
-      font-size: 0.875rem;
-      padding: 11px 20px;
-      border-radius: 12px;
+    .input {
+      width: 100%; padding: 11px 14px;
+      font-family: var(--font); font-size: 0.875rem; font-weight: 400;
+      color: var(--ink);
+      background: var(--surface);
       border: 1.5px solid var(--border);
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
+      border-radius: 11px;
+      outline: none;
+      transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+      -webkit-appearance: none;
+    }
+    .input::placeholder { color: var(--ink-faint); font-weight: 300; }
+    .input:hover { border-color: #CBD5E1; background: var(--white); }
+    .input:focus {
+      border-color: var(--blue);
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(26,86,219,0.08);
+      transform: translateY(-1px);
+    }
+    .input:not(:placeholder-shown) { background: var(--white); }
+
+    textarea.input { resize: none; line-height: 1.6; }
+
+    /* Custom select */
+    .select-wrap { position: relative; }
+    .select-wrap select.input {
+      appearance: none; -webkit-appearance: none;
+      padding-right: 38px; cursor: pointer;
+    }
+    .select-arrow {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      pointer-events: none; transition: transform 0.25s ease;
+      color: var(--ink-faint);
+    }
+    .select-wrap:focus-within .select-arrow { transform: translateY(-50%) rotate(180deg); color: var(--blue); }
+
+    /* Number inputs — hide spinners */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    /* ── LINE ITEMS ── */
+    .items-header {
+      display: grid;
+      grid-template-columns: 1fr 70px 110px 90px 36px;
+      gap: 10px;
+      padding: 9px 22px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .items-col-label {
+      font-size: 0.62rem; font-weight: 700; color: var(--ink-faint);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .items-col-label.center { text-align: center; }
+    .items-col-label.right  { text-align: right; }
+    #itemsBody { padding: 0 22px; }
+    .item-row {
+      display: grid;
+      grid-template-columns: 1fr 70px 110px 90px 36px;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      animation: rowSlide 0.25s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+    @keyframes rowSlide { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+    .item-row .input { font-size: 0.82rem; padding: 9px 11px; border-radius: 9px; }
+    .item-row .input.center { text-align: center; }
+    .item-row .input.right  { text-align: right; }
+    .item-amt {
+      font-size: 0.82rem; font-weight: 600; color: var(--ink);
+      text-align: right; font-variant-numeric: tabular-nums;
+      transition: all 0.2s;
+    }
+    .item-amt.has-value { color: var(--blue); }
+    .del-btn {
+      width: 30px; height: 30px; border-radius: 8px;
+      border: none; background: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink-faint);
+      transition: all 0.15s;
+      font-size: 13px;
+    }
+    .del-btn:hover { background: #FEF2F2; color: #EF4444; }
+    .items-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .add-row-btn {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 0.8rem; font-weight: 600; color: var(--blue);
+      background: var(--blue-soft); border: none;
+      padding: 8px 14px; border-radius: 9px; cursor: pointer;
       transition: all 0.15s;
     }
-    .btn-ghost:hover { background: var(--surface); border-color: #cbd5e1; }
+    .add-row-btn:hover { background: var(--blue-border); }
+    .totals-mini { display: flex; flex-direction: column; gap: 5px; min-width: 200px; }
+    .totals-row { display: flex; justify-content: space-between; gap: 24px; font-size: 0.78rem; }
+    .totals-row span:first-child { color: var(--ink-soft); }
+    .totals-row span:last-child  { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .totals-row.total-due {
+      padding-top: 8px; margin-top: 4px; border-top: 1.5px solid var(--border);
+    }
+    .totals-row.total-due span:first-child { font-weight: 700; color: var(--ink); font-size: 0.85rem; }
+    .totals-row.total-due span:last-child  { font-weight: 800; color: var(--blue); font-size: 1rem; }
 
-    /* Preview card styles */
-    .prev-header {
-      background: linear-gradient(135deg, #1A56DB 0%, #2563EB 50%, #1D4ED8 100%);
-      padding: 24px;
-      position: relative;
+    /* ── RIGHT COLUMN ── */
+    .right-col { position: sticky; top: 78px; display: flex; flex-direction: column; gap: 16px; }
+
+    /* ── GENERATE BTN ── */
+    .gen-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
+      color: white; font-family: var(--font); font-size: 0.9rem; font-weight: 700;
+      border: none; border-radius: 13px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      box-shadow: 0 4px 16px rgba(26,86,219,0.3), 0 1px 4px rgba(26,86,219,0.2);
+      transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+      position: relative; overflow: hidden;
+      letter-spacing: -0.01em;
+    }
+    .gen-btn::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+      border-radius: inherit;
+    }
+    .gen-btn::after {
+      content: ''; position: absolute; top: -50%; left: -80%;
+      width: 50%; height: 200%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: skewX(-20deg);
+      animation: shimmer 3.5s infinite;
+    }
+    @keyframes shimmer { 0%{left:-80%} 60%{left:130%} 100%{left:130%} }
+    .gen-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,86,219,0.35), 0 2px 8px rgba(26,86,219,0.2); }
+    .gen-btn:active { transform: translateY(0); }
+    .gen-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+    .clear-btn {
+      width: 100%; padding: 11px;
+      background: white; color: var(--ink-soft);
+      font-family: var(--font); font-size: 0.85rem; font-weight: 600;
+      border: 1.5px solid var(--border); border-radius: 11px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: all 0.15s;
+    }
+    .clear-btn:hover { background: var(--surface); border-color: #CBD5E1; }
+
+    /* ── PREVIEW CARD ── */
+    .preview-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 18px;
       overflow: hidden;
+      box-shadow: 0 2px 8px rgba(11,17,32,0.05), 0 8px 32px rgba(11,17,32,0.06);
     }
-    .prev-header::before {
-      content: '';
-      position: absolute;
-      top: -40px; right: -40px;
-      width: 160px; height: 160px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.06);
+    .prev-head {
+      background: linear-gradient(145deg, #1447B7 0%, #1A56DB 45%, #2563EB 100%);
+      padding: 22px 22px 20px;
+      position: relative; overflow: hidden;
     }
-    .prev-header::after {
-      content: '';
-      position: absolute;
-      bottom: -20px; left: 40px;
-      width: 100px; height: 100px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.04);
+    .prev-head-orb1 {
+      position: absolute; top: -30px; right: -30px;
+      width: 120px; height: 120px; border-radius: 50%;
+      background: rgba(255,255,255,0.07);
     }
-    .status-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: #F59E0B;
-      display: inline-block;
-      box-shadow: 0 0 0 2px rgba(245,158,11,0.2);
-      animation: pulse-dot 2s infinite;
+    .prev-head-orb2 {
+      position: absolute; bottom: -25px; left: 30px;
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(255,255,255,0.05);
     }
-    @keyframes pulse-dot {
-      0%,100%{ box-shadow: 0 0 0 2px rgba(245,158,11,0.2); }
-      50%    { box-shadow: 0 0 0 4px rgba(245,158,11,0.1); }
+    .prev-head-inner { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-start; }
+    .prev-inv-label { font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.45); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 5px; }
+    .prev-inv-num {
+      font-size: 1.4rem; font-weight: 800; color: white; letter-spacing: -0.03em;
+      font-family: var(--mono);
+      transition: all 0.3s ease;
     }
-    .total-band {
-      background: linear-gradient(135deg, var(--sky-light) 0%, #dbeafe 100%);
-      border: 1px solid rgba(26,86,219,0.15);
-      border-radius: 10px;
-      padding: 12px 14px;
+    .prev-dates { text-align: right; font-size: 0.68rem; color: rgba(255,255,255,0.55); line-height: 1.9; }
+    .prev-dates strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+    .prev-parties {
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .prev-party { padding: 14px 18px; }
+    .prev-party:first-child { border-right: 1px solid var(--border); }
+    .prev-party-label { font-size: 0.58rem; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px; }
+    .prev-party-name { font-size: 0.82rem; font-weight: 700; color: var(--ink); min-height: 18px; transition: all 0.2s; }
+    .prev-party-detail { font-size: 0.7rem; color: var(--ink-faint); margin-top: 2px; line-height: 1.6; min-height: 16px; }
+
+    .prev-items-wrap { padding: 14px 18px; }
+    .prev-items-head {
+      display: grid; grid-template-columns: 1fr 36px 72px 72px;
+      gap: 8px; padding-bottom: 8px;
+      border-bottom: 1.5px solid var(--border);
+    }
+    .prev-items-head span { font-size: 0.58rem; font-weight: 700; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+    .prev-items-head span.r { text-align: right; }
+    .prev-items-head span.c { text-align: center; }
+    #prevItemsList { min-height: 48px; }
+    .prev-item-row {
+      display: grid; grid-template-columns: 1fr 36px 72px 72px;
+      gap: 8px; padding: 7px 0;
+      border-bottom: 1px solid var(--surface);
+      animation: fadeRow 0.2s ease forwards;
+    }
+    @keyframes fadeRow { from{opacity:0} to{opacity:1} }
+    .prev-item-row span { font-size: 0.75rem; color: var(--ink); }
+    .prev-item-row span.desc { font-weight: 500; }
+    .prev-item-row span.r { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+    .prev-item-row span.r.amt { color: var(--ink); font-weight: 700; }
+    .prev-item-row span.c { text-align: center; color: var(--ink-soft); }
+    .prev-empty { padding: 20px 0; text-align: center; font-size: 0.75rem; color: var(--ink-faint); }
+
+    .prev-totals { padding: 12px 18px; border-top: 1px solid var(--border); }
+    .prev-total-row { display: flex; justify-content: space-between; font-size: 0.73rem; margin-bottom: 5px; }
+    .prev-total-row span:first-child { color: var(--ink-faint); }
+    .prev-total-row span:last-child  { font-weight: 600; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+    .prev-total-band {
       display: flex; justify-content: space-between; align-items: center;
+      background: linear-gradient(135deg, var(--blue-soft) 0%, #DBEAFE 100%);
+      border: 1px solid var(--blue-border);
+      border-radius: 11px; padding: 11px 14px; margin-top: 10px;
+      transition: all 0.3s ease;
     }
+    .prev-total-label { font-size: 0.82rem; font-weight: 700; color: var(--blue); }
+    .prev-total-amt   { font-size: 1.05rem; font-weight: 800; color: var(--blue); font-variant-numeric: tabular-nums; transition: all 0.3s ease; }
 
-    /* Smooth row enter */
-    @keyframes rowIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
-    .row-enter { animation: rowIn 0.2s ease forwards; }
+    .prev-footer {
+      padding: 10px 18px; background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .prev-status { display: flex; align-items: center; gap: 6px; }
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #F59E0B;
+      box-shadow: 0 0 0 2px rgba(245,158,11,0.2);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 2px rgba(245,158,11,0.2)} 50%{box-shadow:0 0 0 5px rgba(245,158,11,0.08)} }
+    .prev-status-text { font-size: 0.72rem; font-weight: 600; color: var(--ink-soft); }
+    .prev-currency { font-size: 0.7rem; font-weight: 700; color: var(--blue); background: var(--blue-soft); padding: 3px 10px; border-radius: 20px; }
 
-    nav { background: rgba(255,255,255,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    /* ── FULL PREVIEW MODAL ── */
+    .preview-toggle {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 0.78rem; font-weight: 600; color: var(--blue);
+      background: none; border: 1.5px solid var(--blue-border);
+      padding: 9px 14px; border-radius: 11px; cursor: pointer; width: 100%;
+      justify-content: center; transition: all 0.2s;
+    }
+    .preview-toggle:hover { background: var(--blue-soft); border-color: var(--blue); }
 
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(11,17,32,0.6);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: white; border-radius: 20px; width: 100%; max-width: 680px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 24px 80px rgba(11,17,32,0.3);
+      transform: translateY(20px) scale(0.97);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+    .modal-head {
+      position: sticky; top: 0; z-index: 10;
+      background: white; border-bottom: 1px solid var(--border);
+      padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-title { font-size: 0.9rem; font-weight: 700; color: var(--ink); }
+    .modal-close {
+      width: 30px; height: 30px; border-radius: 8px;
+      border: none; background: var(--surface); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: var(--ink-soft); transition: all 0.15s;
+    }
+    .modal-close:hover { background: #FEF2F2; color: #EF4444; }
+    .modal-body { padding: 24px; }
+
+    /* Full preview PDF-like styles */
+    .pdf-preview {
+      background: white; border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      font-family: var(--font);
+    }
+    .pdf-head {
+      background: linear-gradient(135deg, #1447B7, #2563EB);
+      padding: 28px 32px; display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .pdf-head-title { font-size: 1.5rem; font-weight: 800; color: white; letter-spacing: -0.02em; }
+    .pdf-head-num   { font-size: 0.8rem; color: rgba(255,255,255,0.6); margin-top: 4px; font-family: var(--mono); }
+    .pdf-head-right { text-align: right; color: rgba(255,255,255,0.65); font-size: 0.78rem; line-height: 1.9; }
+    .pdf-head-right strong { color: white; font-weight: 600; }
+    .pdf-body { padding: 28px 32px; }
+    .pdf-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 28px; }
+    .pdf-party-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; color: var(--blue); text-transform: uppercase; margin-bottom: 6px; }
+    .pdf-party-name  { font-size: 0.95rem; font-weight: 700; color: var(--ink); }
+    .pdf-party-detail { font-size: 0.8rem; color: var(--ink-soft); margin-top: 3px; line-height: 1.7; }
+    .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.82rem; }
+    .pdf-table th {
+      background: var(--blue); color: white;
+      padding: 9px 12px; text-align: left;
+      font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+    }
+    .pdf-table th:last-child, .pdf-table td:last-child { text-align: right; }
+    .pdf-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--ink); }
+    .pdf-table tr:nth-child(even) td { background: var(--surface); }
+    .pdf-totals { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+    .pdf-totals-box { min-width: 240px; }
+    .pdf-tot-row { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 5px 0; color: var(--ink-soft); }
+    .pdf-tot-row span:last-child { font-weight: 600; }
+    .pdf-tot-final {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--blue); color: white; border-radius: 10px;
+      padding: 11px 14px; margin-top: 8px;
+    }
+    .pdf-tot-final span:first-child { font-size: 0.85rem; font-weight: 700; }
+    .pdf-tot-final span:last-child   { font-size: 1rem; font-weight: 800; }
+    .pdf-notes { background: var(--surface); border-radius: 10px; padding: 14px 16px; font-size: 0.8rem; color: var(--ink-soft); line-height: 1.7; }
+    .pdf-notes-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px; }
+    .pdf-foot { background: var(--ink); color: rgba(255,255,255,0.4); font-size: 0.65rem; padding: 10px 32px; text-align: center; }
+
+    /* ── ERROR ── */
+    .error-bar {
+      display: none; align-items: center; gap: 10px;
+      background: #FEF2F2; border: 1px solid #FECACA;
+      color: #DC2626; font-size: 0.83rem;
+      padding: 12px 16px; border-radius: 12px; margin-bottom: 20px;
+    }
+    .error-bar.show { display: flex; }
+
+    /* ── PRIVACY NOTE ── */
+    .privacy { display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.71rem; color: var(--ink-faint); }
+
+    /* ── ANIMATE IN ── */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+    .section { animation: fadeUp 0.4s ease both; }
+    .section:nth-child(1){ animation-delay: 0.05s; }
+    .section:nth-child(2){ animation-delay: 0.1s; }
+    .section:nth-child(3){ animation-delay: 0.15s; }
+    .section:nth-child(4){ animation-delay: 0.2s; }
+    .right-col { animation: fadeUp 0.4s 0.25s ease both; }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .right-col { position: static; }
+      .fields-2, .fields-3 { grid-template-columns: 1fr; }
+      .span-2, .span-3 { grid-column: auto; }
+    }
     @media print {
-      #formCol, header, #actionCol, nav { display: none !important; }
-      #previewBox { box-shadow: none !important; border: none !important; }
+      .nav, #formCol, #actionCol { display: none !important; }
+      .pdf-preview { box-shadow: none !important; border: none !important; }
     }
   </style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav class="sticky top-0 z-50">
-  <div style="max-width:1200px;margin:0 auto;padding:0 20px;height:58px;display:flex;align-items:center;justify-content:space-between;">
-    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-      <div style="width:32px;height:32px;background:var(--sky);border-radius:9px;display:flex;align-items:center;justify-content:center;">
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="logo">
+      <div class="logo-mark">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
           <rect x="2" y="2" width="14" height="3" rx="1" fill="white"/>
           <rect x="2" y="7.5" width="10" height="2" rx="1" fill="rgba(255,255,255,0.7)"/>
           <rect x="2" y="11.5" width="7" height="2" rx="1" fill="rgba(255,255,255,0.7)"/>
         </svg>
       </div>
-      <span style="font-weight:700;font-size:1rem;color:var(--ink);letter-spacing:-0.02em;">InvoiceKit</span>
+      <span class="logo-text">InvoiceKit</span>
     </a>
     <div style="display:flex;align-items:center;gap:12px;">
       <span style="font-size:0.75rem;color:var(--ink-faint);">No signup · PDF in seconds</span>
-      <span style="width:1px;height:16px;background:var(--border);"></span>
-      <span style="font-size:0.75rem;font-weight:600;color:var(--sky);background:var(--sky-light);padding:4px 10px;border-radius:20px;">FREE</span>
+      <span class="nav-badge">FREE</span>
     </div>
   </div>
 </nav>
 
 <!-- MAIN -->
-<main style="max-width:1200px;margin:0 auto;padding:28px 20px 60px;">
-
-  <!-- Page heading -->
-  <div style="margin-bottom:24px;">
-    <h1 style="font-size:1.35rem;font-weight:700;color:var(--ink);letter-spacing:-0.02em;">Create Invoice</h1>
-    <p style="font-size:0.85rem;color:var(--ink-faint);margin-top:3px;">Fill in the details below, then download your professional PDF.</p>
+<main class="main">
+  <div>
+    <h1 class="page-title">Create Invoice</h1>
+    <p class="page-sub">Fill in the details below — your preview updates live on the right.</p>
   </div>
 
   <!-- Error -->
-  <div id="errorMsg" style="display:none;margin-bottom:20px;"
-       class="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
-    <svg class="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-      <path fill-rule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-    </svg>
+  <div id="errorMsg" class="error-bar">
+    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20" style="flex-shrink:0"><path fill-rule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
     <span id="errorText"></span>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start;">
+  <div class="grid">
 
-    <!-- LEFT FORM -->
-    <div id="formCol" style="display:flex;flex-direction:column;gap:16px;">
+    <!-- LEFT -->
+    <div id="formCol">
 
       <!-- Your Business -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-header-icon">
-            <svg width="14" height="14" fill="none" stroke="#1A56DB" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2M5 21H3M9 7h1m-1 4h1m4-4h1m-1 4h1M9 21v-3.5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5V21"/></svg>
+      <div class="section">
+        <div class="section-head">
+          <div class="section-icon">
+            <svg width="15" height="15" fill="none" stroke="#1A56DB" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2M5 21H3M9 7h1m-1 4h1m4-4h1m-1 4h1M9 21v-3.5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5V21"/></svg>
           </div>
-          <span class="card-header-title">Your Business</span>
+          <span class="section-title">Your Business</span>
         </div>
-        <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-          <div style="grid-column:span 2;">
-            <label class="label">Business / Your Name <span style="color:#f87171;font-weight:400;text-transform:none;">*</span></label>
-            <input id="senderName" type="text" placeholder="Acme Studio" />
-          </div>
-          <div>
-            <label class="label">Email</label>
-            <input id="senderEmail" type="email" placeholder="hello@acme.com" />
-          </div>
-          <div>
-            <label class="label">Phone</label>
-            <input id="senderPhone" type="tel" placeholder="+91 98765 43210" />
-          </div>
-          <div style="grid-column:span 2;">
-            <label class="label">Address</label>
-            <input id="senderAddress" type="text" placeholder="123 Main St, Mumbai, 400001" />
+        <div class="section-body">
+          <div class="fields fields-2">
+            <div class="field span-2">
+              <label>Business / Your Name <span class="req">*</span></label>
+              <input id="senderName" class="input" type="text" placeholder="Acme Studio" oninput="liveUpdate()" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input id="senderEmail" class="input" type="email" placeholder="hello@acme.com" oninput="liveUpdate()" />
+            </div>
+            <div class="field">
+              <label>Phone</label>
+              <input id="senderPhone" class="input" type="tel" placeholder="+91 98765 43210" oninput="liveUpdate()" />
+            </div>
+            <div class="field span-2">
+              <label>Address</label>
+              <input id="senderAddress" class="input" type="text" placeholder="123 Main St, Mumbai, 400001" oninput="liveUpdate()" />
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Bill To -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-header-icon">
-            <svg width="14" height="14" fill="none" stroke="#1A56DB" stroke-width="2" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      <div class="section">
+        <div class="section-head">
+          <div class="section-icon">
+            <svg width="15" height="15" fill="none" stroke="#1A56DB" stroke-width="2" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
           </div>
-          <span class="card-header-title">Bill To</span>
+          <span class="section-title">Bill To</span>
         </div>
-        <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-          <div>
-            <label class="label">Client Name <span style="color:#f87171;font-weight:400;text-transform:none;">*</span></label>
-            <input id="clientName" type="text" placeholder="Jane Smith" />
-          </div>
-          <div>
-            <label class="label">Company</label>
-            <input id="clientCompany" type="text" placeholder="Client Corp" />
-          </div>
-          <div>
-            <label class="label">Email</label>
-            <input id="clientEmail" type="email" placeholder="jane@clientcorp.com" />
-          </div>
-          <div>
-            <label class="label">Address</label>
-            <input id="clientAddress" type="text" placeholder="456 Park St, Delhi" />
+        <div class="section-body">
+          <div class="fields fields-2">
+            <div class="field">
+              <label>Client Name <span class="req">*</span></label>
+              <input id="clientName" class="input" type="text" placeholder="Jane Smith" oninput="liveUpdate()" />
+            </div>
+            <div class="field">
+              <label>Company</label>
+              <input id="clientCompany" class="input" type="text" placeholder="Client Corp" oninput="liveUpdate()" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input id="clientEmail" class="input" type="email" placeholder="jane@clientcorp.com" oninput="liveUpdate()" />
+            </div>
+            <div class="field">
+              <label>Address</label>
+              <input id="clientAddress" class="input" type="text" placeholder="456 Park St, Delhi" oninput="liveUpdate()" />
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Invoice Details -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-header-icon">
-            <svg width="14" height="14" fill="none" stroke="#1A56DB" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      <div class="section">
+        <div class="section-head">
+          <div class="section-icon">
+            <svg width="15" height="15" fill="none" stroke="#1A56DB" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           </div>
-          <span class="card-header-title">Invoice Details</span>
+          <span class="section-title">Invoice Details</span>
         </div>
-        <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
-          <div>
-            <label class="label">Invoice Number</label>
-            <input id="invNumber" type="text" placeholder="INV-0001" />
-          </div>
-          <div>
-            <label class="label">Issue Date</label>
-            <input id="invDate" type="date" />
-          </div>
-          <div>
-            <label class="label">Due Date</label>
-            <input id="invDue" type="date" />
-          </div>
-          <div>
-            <label class="label">Currency</label>
-            <select id="invCurrency" onchange="updateLiveTotals()">
-              <option value="USD">USD — Dollar</option>
-              <option value="EUR">EUR — Euro</option>
-              <option value="GBP">GBP — Pound</option>
-              <option value="INR" selected>INR — Rupee</option>
-              <option value="CAD">CAD — Canadian</option>
-              <option value="AUD">AUD — Australian</option>
-            </select>
-          </div>
-          <div>
-            <label class="label">Tax Rate (%)</label>
-            <input id="invTax" type="number" placeholder="18" min="0" max="100" step="0.1" />
-          </div>
-          <div>
-            <label class="label">Discount (flat)</label>
-            <input id="invDiscount" type="number" placeholder="0.00" min="0" step="0.01" />
-          </div>
-          <div style="grid-column:span 3;">
-            <label class="label">Notes / Payment Terms</label>
-            <textarea id="invNotes" rows="3" placeholder="e.g. Payment due within 14 days. NEFT to: HDFC Bank A/C 1234567890" style="resize:none;"></textarea>
+        <div class="section-body">
+          <div class="fields fields-3">
+            <div class="field">
+              <label>Invoice Number</label>
+              <input id="invNumber" class="input" type="text" placeholder="INV-0001" oninput="liveUpdate()" />
+            </div>
+            <div class="field">
+              <label>Issue Date</label>
+              <input id="invDate" class="input" type="date" onchange="liveUpdate()" />
+            </div>
+            <div class="field">
+              <label>Due Date</label>
+              <input id="invDue" class="input" type="date" onchange="liveUpdate()" />
+            </div>
+            <div class="field">
+              <label>Currency</label>
+              <div class="select-wrap">
+                <select id="invCurrency" class="input" onchange="updateLiveTotals();liveUpdate()">
+                  <option value="USD">USD — Dollar</option>
+                  <option value="EUR">EUR — Euro</option>
+                  <option value="GBP">GBP — Pound</option>
+                  <option value="INR" selected>INR — Rupee</option>
+                  <option value="CAD">CAD — Canadian</option>
+                  <option value="AUD">AUD — Australian</option>
+                </select>
+                <svg class="select-arrow" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+            </div>
+            <div class="field">
+              <label>Tax Rate (%)</label>
+              <input id="invTax" class="input" type="number" placeholder="18" min="0" max="100" step="0.1" oninput="updateLiveTotals();liveUpdate()" />
+            </div>
+            <div class="field">
+              <label>Discount (flat)</label>
+              <input id="invDiscount" class="input" type="number" placeholder="0.00" min="0" step="0.01" oninput="updateLiveTotals();liveUpdate()" />
+            </div>
+            <div class="field span-3">
+              <label>Notes / Payment Terms</label>
+              <textarea id="invNotes" class="input" rows="3" placeholder="e.g. Payment due within 14 days. NEFT to: HDFC Bank A/C 1234567890, IFSC HDFC0001234" oninput="liveUpdate()"></textarea>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Line Items -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-header-icon">
-            <svg width="14" height="14" fill="none" stroke="#1A56DB" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+      <div class="section">
+        <div class="section-head">
+          <div class="section-icon">
+            <svg width="15" height="15" fill="none" stroke="#1A56DB" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h7"/></svg>
           </div>
-          <span class="card-header-title">Line Items</span>
+          <span class="section-title">Line Items</span>
         </div>
-
-        <!-- Table header -->
-        <div style="display:grid;grid-template-columns:1fr 72px 100px 88px 32px;gap:8px;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--surface);">
-          <span style="font-size:0.65rem;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.06em;">Description</span>
-          <span style="font-size:0.65rem;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.06em;text-align:center;">Qty</span>
-          <span style="font-size:0.65rem;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.06em;text-align:right;">Rate</span>
-          <span style="font-size:0.65rem;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.06em;text-align:right;">Amount</span>
+        <div class="items-header">
+          <span class="items-col-label">Description</span>
+          <span class="items-col-label center">Qty</span>
+          <span class="items-col-label right">Rate</span>
+          <span class="items-col-label right">Amount</span>
           <span></span>
         </div>
-
-        <div id="itemsBody" style="padding:0 20px;"></div>
-
-        <!-- Add row + totals -->
-        <div style="padding:14px 20px;border-top:1px solid var(--border);">
-          <button type="button" onclick="addRow()"
-            style="display:flex;align-items:center;gap:6px;font-size:0.8rem;font-weight:600;color:var(--sky);background:var(--sky-light);border:none;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all 0.15s;"
-            onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='var(--sky-light)'">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        <div id="itemsBody"></div>
+        <div class="items-footer">
+          <button class="add-row-btn" type="button" onclick="addRow()">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
             Add Line Item
           </button>
-        </div>
-
-        <!-- Totals summary -->
-        <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--surface);">
-          <div style="display:flex;flex-direction:column;gap:6px;max-width:260px;margin-left:auto;">
-            <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--ink-soft);">
-              <span>Subtotal</span><span id="liveSubtotal" style="font-weight:600;tabular-nums">—</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--ink-soft);">
-              <span>Tax</span><span id="liveTaxAmt" style="font-weight:600;">—</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--ink-soft);">
-              <span>Discount</span><span id="liveDiscAmt" style="font-weight:600;">—</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1.5px solid var(--border);margin-top:4px;">
-              <span style="font-size:0.9rem;font-weight:700;color:var(--ink);">Total Due</span>
-              <span id="liveTotal" style="font-size:1.1rem;font-weight:800;color:var(--sky);">—</span>
-            </div>
+          <div class="totals-mini">
+            <div class="totals-row"><span>Subtotal</span><span id="liveSubtotal">—</span></div>
+            <div class="totals-row"><span>Tax</span><span id="liveTaxAmt">—</span></div>
+            <div class="totals-row"><span>Discount</span><span id="liveDiscAmt">—</span></div>
+            <div class="totals-row total-due"><span>Total Due</span><span id="liveTotal">—</span></div>
           </div>
         </div>
       </div>
 
-    </div>
-    <!-- end left col -->
+    </div><!-- end left -->
 
-    <!-- RIGHT COLUMN -->
-    <div id="actionCol" style="position:sticky;top:78px;display:flex;flex-direction:column;gap:16px;">
+    <!-- RIGHT -->
+    <div id="actionCol" class="right-col">
 
       <!-- Action buttons -->
-      <div class="card" style="padding:18px;">
-        <button id="generateBtn" onclick="generateInvoice()" class="btn-primary">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      <div class="section" style="padding:18px;margin:0;">
+        <button id="generateBtn" class="gen-btn" onclick="generateInvoice()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
           Generate &amp; Download PDF
         </button>
         <div style="margin-top:10px;">
-          <button type="button" onclick="clearForm()" class="btn-ghost">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          <button class="clear-btn" type="button" onclick="clearForm()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             Clear Form
           </button>
         </div>
       </div>
 
-      <!-- Invoice preview -->
-      <div id="previewBox" class="card" style="overflow:hidden;">
-
-        <!-- Preview header -->
-        <div class="prev-header">
-          <div style="position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;">
+      <!-- Live Preview Card -->
+      <div class="preview-card">
+        <div class="prev-head">
+          <div class="prev-head-orb1"></div>
+          <div class="prev-head-orb2"></div>
+          <div class="prev-head-inner">
             <div>
-              <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.5);text-transform:uppercase;margin-bottom:6px;">Invoice</p>
-              <p id="prevNum" style="font-size:1.3rem;font-weight:800;color:white;letter-spacing:-0.02em;">#INV-0001</p>
+              <p class="prev-inv-label">Invoice</p>
+              <p id="prevNum" class="prev-inv-num">#INV-0001</p>
             </div>
-            <div id="prevDates" style="text-align:right;font-size:0.7rem;color:rgba(255,255,255,0.6);line-height:1.8;">Issued: —<br>Due: —</div>
+            <div id="prevDates" class="prev-dates">Issued: <strong>—</strong><br>Due: <strong>—</strong></div>
           </div>
         </div>
 
-        <!-- From / Bill To -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid var(--border);">
-          <div style="padding:14px 16px;border-right:1px solid var(--border);">
-            <p style="font-size:0.58rem;font-weight:700;letter-spacing:0.1em;color:var(--sky);text-transform:uppercase;margin-bottom:5px;">From</p>
-            <p id="prevSenderName" style="font-size:0.82rem;font-weight:700;color:var(--ink);">Your Business</p>
-            <p id="prevSenderDetail" style="font-size:0.7rem;color:var(--ink-faint);margin-top:2px;line-height:1.6;">—</p>
+        <div class="prev-parties">
+          <div class="prev-party">
+            <p class="prev-party-label">From</p>
+            <p id="prevSenderName" class="prev-party-name">Your Business</p>
+            <p id="prevSenderDetail" class="prev-party-detail">—</p>
           </div>
-          <div style="padding:14px 16px;">
-            <p style="font-size:0.58rem;font-weight:700;letter-spacing:0.1em;color:var(--sky);text-transform:uppercase;margin-bottom:5px;">Bill To</p>
-            <p id="prevClientName" style="font-size:0.82rem;font-weight:700;color:var(--ink);">Client Name</p>
-            <p id="prevClientDetail" style="font-size:0.7rem;color:var(--ink-faint);margin-top:2px;line-height:1.6;">—</p>
-          </div>
-        </div>
-
-        <!-- Items table -->
-        <div style="padding:14px 16px;">
-          <table style="width:100%;border-collapse:collapse;">
-            <thead>
-              <tr style="border-bottom:1.5px solid var(--border);">
-                <th style="text-align:left;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;color:var(--ink-faint);text-transform:uppercase;padding-bottom:8px;">Item</th>
-                <th style="text-align:center;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;color:var(--ink-faint);text-transform:uppercase;padding-bottom:8px;">Qty</th>
-                <th style="text-align:right;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;color:var(--ink-faint);text-transform:uppercase;padding-bottom:8px;">Rate</th>
-                <th style="text-align:right;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;color:var(--ink-faint);text-transform:uppercase;padding-bottom:8px;">Total</th>
-              </tr>
-            </thead>
-            <tbody id="prevItems">
-              <tr><td colspan="4" style="padding:20px 0;text-align:center;font-size:0.75rem;color:var(--ink-faint);">Fill the form and click Generate</td></tr>
-            </tbody>
-          </table>
-
-          <div id="prevTotals" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
-            <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--ink-faint);margin-bottom:4px;">
-              <span>Subtotal</span><span id="prevSubtotal" style="font-weight:600;color:var(--ink-soft);">—</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--ink-faint);margin-bottom:4px;">
-              <span>Tax</span><span id="prevTax" style="font-weight:600;color:var(--ink-soft);">—</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--ink-faint);margin-bottom:10px;">
-              <span>Discount</span><span id="prevDisc" style="font-weight:600;color:var(--ink-soft);">—</span>
-            </div>
-            <div class="total-band">
-              <span style="font-size:0.82rem;font-weight:700;color:var(--sky);">Total Due</span>
-              <span id="prevTotal" style="font-size:1rem;font-weight:800;color:var(--sky);">—</span>
-            </div>
-          </div>
-
-          <div id="prevNotes" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
-            <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.1em;color:var(--ink-faint);text-transform:uppercase;margin-bottom:4px;">Notes</p>
-            <p id="prevNotesText" style="font-size:0.72rem;color:var(--ink-soft);line-height:1.6;"></p>
+          <div class="prev-party">
+            <p class="prev-party-label">Bill To</p>
+            <p id="prevClientName" class="prev-party-name">Client Name</p>
+            <p id="prevClientDetail" class="prev-party-detail">—</p>
           </div>
         </div>
 
-        <!-- Footer status -->
-        <div style="padding:10px 16px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-          <div style="display:flex;align-items:center;gap:6px;">
+        <div class="prev-items-wrap">
+          <div class="prev-items-head">
+            <span>Item</span><span class="c">Qty</span><span class="r">Rate</span><span class="r">Total</span>
+          </div>
+          <div id="prevItemsList"><div class="prev-empty">Add line items to see preview</div></div>
+        </div>
+
+        <div id="prevTotalsSection" class="prev-totals" style="display:none;">
+          <div class="prev-total-row"><span>Subtotal</span><span id="prevSubtotal">—</span></div>
+          <div class="prev-total-row"><span>Tax</span><span id="prevTax">—</span></div>
+          <div class="prev-total-row"><span>Discount</span><span id="prevDisc">—</span></div>
+          <div class="prev-total-band">
+            <span class="prev-total-label">Total Due</span>
+            <span id="prevTotal" class="prev-total-amt">—</span>
+          </div>
+        </div>
+
+        <div id="prevNotesSection" class="prev-totals" style="display:none;border-top:1px solid var(--border);">
+          <p style="font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:4px;">Notes</p>
+          <p id="prevNotesText" style="font-size:0.72rem;color:var(--ink-soft);line-height:1.6;"></p>
+        </div>
+
+        <div class="prev-footer">
+          <div class="prev-status">
             <span class="status-dot"></span>
-            <span style="font-size:0.72rem;font-weight:600;color:var(--ink-soft);">Draft</span>
+            <span class="prev-status-text">Live Preview</span>
           </div>
-          <span id="prevCurrency" style="font-size:0.72rem;font-weight:700;color:var(--sky);background:var(--sky-light);padding:2px 8px;border-radius:20px;">INR</span>
+          <span id="prevCurrency" class="prev-currency">INR</span>
         </div>
       </div>
 
-      <p style="text-align:center;font-size:0.72rem;color:var(--ink-faint);display:flex;align-items:center;justify-content:center;gap:5px;">
+      <!-- Full preview button -->
+      <button class="preview-toggle" onclick="openModal()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        Preview Full Invoice
+      </button>
+
+      <p class="privacy">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Your data never leaves your browser.
       </p>
@@ -509,222 +750,273 @@
   </div>
 </main>
 
+<!-- FULL PREVIEW MODAL -->
+<div id="modalOverlay" class="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <span class="modal-title">Full Invoice Preview</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="pdf-preview" id="pdfPreview">
+        <div class="pdf-head">
+          <div>
+            <div class="pdf-head-title">INVOICE</div>
+            <div id="pdfNum" class="pdf-head-num">#INV-0001</div>
+          </div>
+          <div id="pdfDates" class="pdf-head-right">Issued: <strong>—</strong><br>Due: <strong>—</strong></div>
+        </div>
+        <div class="pdf-body">
+          <div class="pdf-parties">
+            <div>
+              <div class="pdf-party-label">From</div>
+              <div id="pdfSenderName" class="pdf-party-name">Your Business</div>
+              <div id="pdfSenderDetail" class="pdf-party-detail">—</div>
+            </div>
+            <div>
+              <div class="pdf-party-label">Bill To</div>
+              <div id="pdfClientName" class="pdf-party-name">Client Name</div>
+              <div id="pdfClientDetail" class="pdf-party-detail">—</div>
+            </div>
+          </div>
+          <table class="pdf-table">
+            <thead>
+              <tr><th>Description</th><th style="text-align:center">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr>
+            </thead>
+            <tbody id="pdfItems"><tr><td colspan="4" style="text-align:center;color:var(--ink-faint);padding:20px;">No items added yet</td></tr></tbody>
+          </table>
+          <div class="pdf-totals">
+            <div class="pdf-totals-box">
+              <div class="pdf-tot-row"><span>Subtotal</span><span id="pdfSubtotal">—</span></div>
+              <div class="pdf-tot-row"><span>Tax</span><span id="pdfTax">—</span></div>
+              <div class="pdf-tot-row"><span>Discount</span><span id="pdfDisc">—</span></div>
+              <div class="pdf-tot-final"><span>Total Due</span><span id="pdfTotal">—</span></div>
+            </div>
+          </div>
+          <div id="pdfNotesWrap" style="display:none;">
+            <div class="pdf-notes-label">Notes / Payment Terms</div>
+            <div id="pdfNotes" class="pdf-notes"></div>
+          </div>
+        </div>
+        <div class="pdf-foot">Generated by InvoiceKit &nbsp;·&nbsp; <span style="color:#4ADE80">● PDF ready to download</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-  function getSymbol(c) {
-    return { USD:'$', EUR:'\u20ac', GBP:'\u00a3', INR:'\u20b9', CAD:'CA$', AUD:'A$' }[c] || (c + ' ');
-  }
-  function fmtMoney(n, c) {
-    c = c || document.getElementById('invCurrency').value;
-    return getSymbol(c) + parseFloat(n || 0).toFixed(2);
-  }
-  function showError(msg) {
-    document.getElementById('errorText').textContent = msg;
-    const el = document.getElementById('errorMsg');
-    el.style.display = 'flex';
-    el.scrollIntoView({ behavior:'smooth', block:'nearest' });
-  }
-  function clearError() { document.getElementById('errorMsg').style.display = 'none'; }
+  // ── Helpers ──────────────────────────────────────────────────────
+  function sym(c){ return {USD:'$',EUR:'€',GBP:'£',INR:'₹',CAD:'CA$',AUD:'A$'}[c]||(c+' '); }
+  function fmt(n,c){ c=c||cv(); return sym(c)+parseFloat(n||0).toFixed(2); }
+  function cv(){ return document.getElementById('invCurrency').value; }
+  function fmtDate(d){ if(!d) return '—'; const dt=new Date(d); return isNaN(dt)?d:dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
+  function showError(m){ document.getElementById('errorText').textContent=m; document.getElementById('errorMsg').classList.add('show'); document.getElementById('errorMsg').scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  function clearError(){ document.getElementById('errorMsg').classList.remove('show'); }
 
-  function saveMyDetails() {
-    try {
-      localStorage.setItem('senderDetails', JSON.stringify({
-        senderName:    document.getElementById('senderName').value,
-        senderEmail:   document.getElementById('senderEmail').value,
-        senderPhone:   document.getElementById('senderPhone').value,
-        senderAddress: document.getElementById('senderAddress').value
-      }));
-    } catch(e){}
+  // ── Saved details ─────────────────────────────────────────────────
+  function saveMyDetails(){
+    try{ localStorage.setItem('sd',JSON.stringify({n:v('senderName'),e:v('senderEmail'),p:v('senderPhone'),a:v('senderAddress')})); }catch(e){}
   }
-  function loadMyDetails() {
-    try {
-      const d = JSON.parse(localStorage.getItem('senderDetails') || 'null');
-      if (!d) return;
-      document.getElementById('senderName').value    = d.senderName    || '';
-      document.getElementById('senderEmail').value   = d.senderEmail   || '';
-      document.getElementById('senderPhone').value   = d.senderPhone   || '';
-      document.getElementById('senderAddress').value = d.senderAddress || '';
-    } catch(e){}
+  function loadMyDetails(){
+    try{ const d=JSON.parse(localStorage.getItem('sd')||'null'); if(!d)return;
+      sv('senderName',d.n);sv('senderEmail',d.e);sv('senderPhone',d.p);sv('senderAddress',d.a); }catch(e){}
+  }
+  function v(id){ return document.getElementById(id)?.value||''; }
+  function sv(id,val){ const el=document.getElementById(id); if(el) el.value=val||''; }
+
+  // ── Defaults ──────────────────────────────────────────────────────
+  function getNextNum(){
+    try{ const n=parseInt(localStorage.getItem('ic')||'0')+1; localStorage.setItem('ic',n); return 'INV-'+String(n).padStart(4,'0'); }catch(e){ return 'INV-0001'; }
+  }
+  function setDefaults(){
+    const t=new Date(), due=new Date(); due.setDate(t.getDate()+14);
+    const f=d=>d.toISOString().split('T')[0];
+    const de=document.getElementById('invDate'), dv=document.getElementById('invDue'), ne=document.getElementById('invNumber');
+    if(de&&!de.value) de.value=f(t);
+    if(dv&&!dv.value) dv.value=f(due);
+    if(ne&&!ne.value) ne.value=getNextNum();
   }
 
-  function getNextInvoiceNumber() {
-    try {
-      const n = parseInt(localStorage.getItem('invCounter') || '0') + 1;
-      localStorage.setItem('invCounter', n);
-      return 'INV-' + String(n).padStart(4,'0');
-    } catch(e){ return 'INV-0001'; }
+  // ── Row management ────────────────────────────────────────────────
+  let rc=0;
+  function addRow(){
+    const body=document.getElementById('itemsBody');
+    const div=document.createElement('div');
+    div.innerHTML=`<div class="item-row" data-row="${rc++}">
+      <input type="text" data-field="desc" class="input" placeholder="Service or product description" oninput="updateLiveTotals();liveUpdate()"/>
+      <input type="number" data-field="qty" class="input center" placeholder="1" min="0" step="any" oninput="updateLiveTotals();liveUpdate()"/>
+      <input type="number" data-field="rate" class="input right" placeholder="0.00" min="0" step="0.01" oninput="updateLiveTotals();liveUpdate()"/>
+      <span data-amt class="item-amt">—</span>
+      <button type="button" class="del-btn" onclick="removeRow(this)">✕</button>
+    </div>`;
+    body.appendChild(div.firstElementChild);
+    body.lastElementChild.querySelector('[data-field=desc]').focus();
   }
-  function setDefaults() {
-    const today = new Date();
-    const due   = new Date(); due.setDate(today.getDate() + 14);
-    const fmt   = d => d.toISOString().split('T')[0];
-    const dateEl = document.getElementById('invDate');
-    const dueEl  = document.getElementById('invDue');
-    const numEl  = document.getElementById('invNumber');
-    if (dateEl && !dateEl.value) dateEl.value = fmt(today);
-    if (dueEl  && !dueEl.value)  dueEl.value  = fmt(due);
-    if (numEl  && !numEl.value)  numEl.value  = getNextInvoiceNumber();
-  }
-
-  let rowCount = 0;
-  function makeRowHTML(idx) {
-    return '<div class="row-enter" style="display:grid;grid-template-columns:1fr 72px 100px 88px 32px;gap:8px;padding:10px 0;border-bottom:1px solid var(--border);align-items:center;" data-row="' + idx + '">' +
-      '<input type="text"   data-field="desc" placeholder="Service description" style="font-size:0.82rem;" />' +
-      '<input type="number" data-field="qty"  placeholder="1"    min="0" step="any"  style="text-align:center;font-size:0.82rem;" />' +
-      '<input type="number" data-field="rate" placeholder="0.00" min="0" step="0.01" style="text-align:right;font-size:0.82rem;" />' +
-      '<span data-amt style="font-size:0.82rem;font-weight:700;color:var(--ink);text-align:right;tabular-nums;">\u2014</span>' +
-      '<button type="button" onclick="removeRow(this)" style="width:28px;height:28px;border-radius:8px;border:none;background:none;color:#cbd5e1;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.15s;" onmouseover="this.style.color=\'#ef4444\';this.style.background=\'#fef2f2\'" onmouseout="this.style.color=\'#cbd5e1\';this.style.background=\'none\'">\u2715</button>' +
-    '</div>';
-  }
-  function addRow() {
-    const body = document.getElementById('itemsBody');
-    const div  = document.createElement('div');
-    div.innerHTML = makeRowHTML(rowCount++);
-    const row = div.firstElementChild;
-    row.addEventListener('input', updateLiveTotals);
-    body.appendChild(row);
-  }
-  function removeRow(btn) {
-    const rows = document.querySelectorAll('#itemsBody [data-row]');
-    if (rows.length > 1) { btn.closest('[data-row]').remove(); updateLiveTotals(); }
+  function removeRow(btn){
+    const rows=document.querySelectorAll('#itemsBody [data-row]');
+    if(rows.length>1){ btn.closest('[data-row]').remove(); updateLiveTotals(); liveUpdate(); }
   }
 
-  function updateLiveTotals() {
-    const c   = document.getElementById('invCurrency').value;
-    let sub   = 0;
-    document.querySelectorAll('#itemsBody [data-row]').forEach(r => {
-      const qty  = parseFloat(r.querySelector('[data-field=qty]')?.value)  || 0;
-      const rate = parseFloat(r.querySelector('[data-field=rate]')?.value) || 0;
-      const amt  = qty * rate;
-      sub += amt;
-      const el = r.querySelector('[data-amt]');
-      if (el) el.textContent = amt > 0 ? fmtMoney(amt, c) : '\u2014';
+  // ── Live totals ───────────────────────────────────────────────────
+  function updateLiveTotals(){
+    const c=cv(); let sub=0;
+    document.querySelectorAll('#itemsBody [data-row]').forEach(r=>{
+      const qty=parseFloat(r.querySelector('[data-field=qty]')?.value)||0;
+      const rate=parseFloat(r.querySelector('[data-field=rate]')?.value)||0;
+      const amt=qty*rate; sub+=amt;
+      const el=r.querySelector('[data-amt]');
+      if(el){ el.textContent=amt>0?fmt(amt,c):'—'; el.classList.toggle('has-value',amt>0); }
     });
-    const tax  = sub * ((parseFloat(document.getElementById('invTax')?.value)      || 0) / 100);
-    const disc = parseFloat(document.getElementById('invDiscount')?.value) || 0;
-    const tot  = Math.max(0, sub + tax - disc);
-    document.getElementById('liveSubtotal').textContent = sub  > 0 ? fmtMoney(sub,  c) : '\u2014';
-    document.getElementById('liveTaxAmt').textContent   = tax  > 0 ? fmtMoney(tax,  c) : '\u2014';
-    document.getElementById('liveDiscAmt').textContent  = disc > 0 ? '- ' + fmtMoney(disc, c) : '\u2014';
-    document.getElementById('liveTotal').textContent    = tot  > 0 ? fmtMoney(tot,  c) : '\u2014';
+    const tax=sub*((parseFloat(v('invTax'))||0)/100);
+    const disc=parseFloat(v('invDiscount'))||0;
+    const tot=Math.max(0,sub+tax-disc);
+    document.getElementById('liveSubtotal').textContent=sub>0?fmt(sub,c):'—';
+    document.getElementById('liveTaxAmt').textContent=tax>0?fmt(tax,c):'—';
+    document.getElementById('liveDiscAmt').textContent=disc>0?'- '+fmt(disc,c):'—';
+    document.getElementById('liveTotal').textContent=tot>0?fmt(tot,c):'—';
   }
 
-  function resetBtn() {
-    const btn = document.getElementById('generateBtn');
-    btn.disabled = false;
-    btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> Generate &amp; Download PDF';
-  }
-
-  async function generateInvoice() {
-    clearError();
-    saveMyDetails();
-    const btn = document.getElementById('generateBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Generating...';
-
-    const senderName = document.getElementById('senderName').value.trim();
-    const clientName = document.getElementById('clientName').value.trim();
-    if (!senderName) { showError('Your business name is required.'); resetBtn(); return; }
-    if (!clientName) { showError('Client name is required.');        resetBtn(); return; }
-
-    const items = [];
-    let valid = true;
-    document.querySelectorAll('#itemsBody [data-row]').forEach(r => {
-      const desc = r.querySelector('[data-field=desc]')?.value.trim();
-      const qty  = parseFloat(r.querySelector('[data-field=qty]')?.value);
-      const rate = parseFloat(r.querySelector('[data-field=rate]')?.value);
-      if (!desc || isNaN(qty) || isNaN(rate)) { valid = false; return; }
-      items.push({ desc, qty, rate });
-    });
-    if (!valid || !items.length) {
-      showError('Please complete all line items with description, quantity, and rate.');
-      resetBtn(); return;
-    }
-
-    const payload = {
-      sender: { name:senderName, email:document.getElementById('senderEmail').value, phone:document.getElementById('senderPhone').value, address:document.getElementById('senderAddress').value },
-      client: { name:clientName, company:document.getElementById('clientCompany').value, email:document.getElementById('clientEmail').value, address:document.getElementById('clientAddress').value },
-      items,
-      invoice: { number:document.getElementById('invNumber').value, date:document.getElementById('invDate').value, due:document.getElementById('invDue').value, currency:document.getElementById('invCurrency').value, taxRate:document.getElementById('invTax').value, discount:document.getElementById('invDiscount').value, notes:document.getElementById('invNotes').value }
-    };
-
-    try {
-      const res = await fetch('/api/invoice', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
-      const ct = res.headers.get('Content-Type') || '';
-      if (!res.ok || !ct.includes('application/pdf')) {
-        const err = await res.json().catch(() => ({ error:'Server error.' }));
-        showError(err.error || 'Failed to generate PDF.'); resetBtn(); return;
+  // ── Live preview update (runs on every keystroke) ─────────────────
+  function liveUpdate(){
+    const c=cv();
+    // Invoice number
+    const num=v('invNumber')||'INV-0001';
+    document.getElementById('prevNum').textContent='#'+num;
+    document.getElementById('pdfNum').textContent='#'+num;
+    // Dates
+    const issued=fmtDate(v('invDate')), due=fmtDate(v('invDue'));
+    document.getElementById('prevDates').innerHTML=`Issued: <strong>${issued}</strong><br>Due: <strong>${due}</strong>`;
+    document.getElementById('pdfDates').innerHTML=`Issued: <strong>${issued}</strong><br>Due: <strong>${due}</strong>`;
+    // Sender
+    const sn=v('senderName')||'Your Business';
+    const sd=[v('senderEmail'),v('senderPhone'),v('senderAddress')].filter(Boolean).join(' · ')||'—';
+    document.getElementById('prevSenderName').textContent=sn;
+    document.getElementById('prevSenderDetail').textContent=sd;
+    document.getElementById('pdfSenderName').textContent=sn;
+    document.getElementById('pdfSenderDetail').textContent=[v('senderEmail'),v('senderPhone'),v('senderAddress')].filter(Boolean).join('\n')||'—';
+    // Client
+    const cn=v('clientName')||'Client Name';
+    const co=v('clientCompany');
+    const cd=[v('clientEmail'),v('clientAddress')].filter(Boolean).join(' · ')||'—';
+    document.getElementById('prevClientName').textContent=cn+(co?' · '+co:'');
+    document.getElementById('prevClientDetail').textContent=cd;
+    document.getElementById('pdfClientName').textContent=cn+(co?' · '+co:'');
+    document.getElementById('pdfClientDetail').textContent=[v('clientEmail'),v('clientAddress')].filter(Boolean).join('\n')||'—';
+    // Currency badge
+    document.getElementById('prevCurrency').textContent=c;
+    // Items
+    const rows=document.querySelectorAll('#itemsBody [data-row]');
+    let sub=0, hasItems=false;
+    const prevRows=[],pdfRows=[];
+    rows.forEach(r=>{
+      const desc=r.querySelector('[data-field=desc]')?.value.trim();
+      const qty=parseFloat(r.querySelector('[data-field=qty]')?.value)||0;
+      const rate=parseFloat(r.querySelector('[data-field=rate]')?.value)||0;
+      const amt=qty*rate;
+      if(desc){ hasItems=true; sub+=amt;
+        prevRows.push(`<div class="prev-item-row"><span class="desc">${desc}</span><span class="c">${qty||'—'}</span><span class="r">${rate>0?fmt(rate,c):'—'}</span><span class="r amt">${amt>0?fmt(amt,c):'—'}</span></div>`);
+        pdfRows.push(`<tr><td>${desc}</td><td style="text-align:center">${qty}</td><td style="text-align:right">${rate>0?fmt(rate,c):'—'}</td><td style="text-align:right;font-weight:700">${amt>0?fmt(amt,c):'—'}</td></tr>`);
       }
-      const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href = url; a.download = 'invoice-' + (payload.invoice.number || 'download') + '.pdf';
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
-      renderPreview(payload);
-    } catch(err) {
-      showError('Network error — check your connection and try again.');
+    });
+    document.getElementById('prevItemsList').innerHTML=hasItems?prevRows.join(''):'<div class="prev-empty">Add line items to see preview</div>';
+    document.getElementById('pdfItems').innerHTML=hasItems?pdfRows.join(''):`<tr><td colspan="4" style="text-align:center;color:var(--ink-faint);padding:20px">No items added yet</td></tr>`;
+    // Totals
+    const tax=sub*((parseFloat(v('invTax'))||0)/100);
+    const disc=parseFloat(v('invDiscount'))||0;
+    const tot=Math.max(0,sub+tax-disc);
+    const showTots=sub>0;
+    document.getElementById('prevTotalsSection').style.display=showTots?'block':'none';
+    if(showTots){
+      document.getElementById('prevSubtotal').textContent=fmt(sub,c);
+      document.getElementById('prevTax').textContent=tax>0?fmt(tax,c)+' ('+(v('invTax')||0)+'%)':'—';
+      document.getElementById('prevDisc').textContent=disc>0?'- '+fmt(disc,c):'—';
+      document.getElementById('prevTotal').textContent=fmt(tot,c);
+      document.getElementById('pdfSubtotal').textContent=fmt(sub,c);
+      document.getElementById('pdfTax').textContent=tax>0?fmt(tax,c)+' ('+(v('invTax')||0)+'%)':'—';
+      document.getElementById('pdfDisc').textContent=disc>0?'- '+fmt(disc,c):'—';
+      document.getElementById('pdfTotal').textContent=fmt(tot,c);
     }
+    // Notes
+    const notes=v('invNotes');
+    document.getElementById('prevNotesSection').style.display=notes?'block':'none';
+    document.getElementById('prevNotesText').textContent=notes;
+    document.getElementById('pdfNotesWrap').style.display=notes?'block':'none';
+    document.getElementById('pdfNotes').textContent=notes;
+  }
+
+  // ── Modal ─────────────────────────────────────────────────────────
+  function openModal(){ document.getElementById('modalOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+  function closeModalOutside(e){ if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+
+  // ── Reset button ──────────────────────────────────────────────────
+  function resetBtn(){
+    const btn=document.getElementById('generateBtn');
+    btn.disabled=false;
+    btn.innerHTML=`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> Generate &amp; Download PDF`;
+  }
+
+  // ── Generate PDF ──────────────────────────────────────────────────
+  async function generateInvoice(){
+    clearError(); saveMyDetails();
+    const btn=document.getElementById('generateBtn');
+    btn.disabled=true;
+    btn.innerHTML=`<svg class="spin" width="16" height="16" fill="none" viewBox="0 0 24 24"><style>.spin{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}</style><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity=".25"/><path fill="currentColor" d="M4 12a8 8 0 018-8v8z" opacity=".75"/></svg> Generating...`;
+
+    const sn=v('senderName').trim(), cn=v('clientName').trim();
+    if(!sn){showError('Your business name is required.');resetBtn();return;}
+    if(!cn){showError('Client name is required.');resetBtn();return;}
+
+    const items=[]; let valid=true;
+    document.querySelectorAll('#itemsBody [data-row]').forEach(r=>{
+      const desc=r.querySelector('[data-field=desc]')?.value.trim();
+      const qty=parseFloat(r.querySelector('[data-field=qty]')?.value);
+      const rate=parseFloat(r.querySelector('[data-field=rate]')?.value);
+      if(!desc||isNaN(qty)||isNaN(rate)){valid=false;return;}
+      items.push({desc,qty,rate});
+    });
+    if(!valid||!items.length){showError('Please complete all line items.');resetBtn();return;}
+
+    const payload={
+      sender:{name:sn,email:v('senderEmail'),phone:v('senderPhone'),address:v('senderAddress')},
+      client:{name:cn,company:v('clientCompany'),email:v('clientEmail'),address:v('clientAddress')},
+      items,
+      invoice:{number:v('invNumber'),date:v('invDate'),due:v('invDue'),currency:cv(),taxRate:v('invTax'),discount:v('invDiscount'),notes:v('invNotes')}
+    };
+    try{
+      const res=await fetch('/api/invoice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      const ct=res.headers.get('Content-Type')||'';
+      if(!res.ok||!ct.includes('application/pdf')){
+        const err=await res.json().catch(()=>({error:'Server error.'}));
+        showError(err.error||'Failed to generate PDF.');resetBtn();return;
+      }
+      const blob=await res.blob();
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;a.download='invoice-'+(payload.invoice.number||'download')+'.pdf';
+      document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+    }catch(err){showError('Network error — check your connection.');console.error(err);}
     resetBtn();
   }
 
-  function renderPreview(p) {
-    const c = p.invoice.currency;
-    document.getElementById('prevNum').textContent      = '#' + (p.invoice.number || 'INV');
-    document.getElementById('prevCurrency').textContent = c;
-    document.getElementById('prevDates').innerHTML      = 'Issued: ' + (p.invoice.date || '\u2014') + '<br>Due: ' + (p.invoice.due || '\u2014');
-    document.getElementById('prevSenderName').textContent   = p.sender.name;
-    document.getElementById('prevSenderDetail').innerHTML   = [p.sender.email, p.sender.phone, p.sender.address].filter(Boolean).join('<br>') || '\u2014';
-    document.getElementById('prevClientName').textContent   = p.client.name + (p.client.company ? ' \u00b7 ' + p.client.company : '');
-    document.getElementById('prevClientDetail').innerHTML   = [p.client.email, p.client.address].filter(Boolean).join('<br>') || '\u2014';
-
-    const sub  = p.items.reduce((s,i) => s + parseFloat(i.qty||0) * parseFloat(i.rate||0), 0);
-    const tax  = sub * ((parseFloat(p.invoice.taxRate||0)) / 100);
-    const disc = parseFloat(p.invoice.discount||0);
-    const tot  = Math.max(0, sub + tax - disc);
-
-    document.getElementById('prevItems').innerHTML = p.items.map(i => {
-      const amt = parseFloat(i.qty||0) * parseFloat(i.rate||0);
-      return '<tr style="border-bottom:1px solid var(--border);">' +
-        '<td style="padding:8px 0;font-size:0.75rem;color:var(--ink);">' + (i.desc||'') + '</td>' +
-        '<td style="padding:8px 0;font-size:0.75rem;color:var(--ink-faint);text-align:center;">' + i.qty + '</td>' +
-        '<td style="padding:8px 0;font-size:0.75rem;color:var(--ink-faint);text-align:right;tabular-nums;">' + fmtMoney(i.rate, c) + '</td>' +
-        '<td style="padding:8px 0;font-size:0.75rem;font-weight:700;color:var(--ink);text-align:right;tabular-nums;">' + fmtMoney(amt, c) + '</td></tr>';
-    }).join('');
-
-    document.getElementById('prevSubtotal').textContent = fmtMoney(sub,  c);
-    document.getElementById('prevTax').textContent      = parseFloat(p.invoice.taxRate||0) > 0 ? fmtMoney(tax, c) + ' (' + p.invoice.taxRate + '%)' : '\u2014';
-    document.getElementById('prevDisc').textContent     = disc > 0 ? '- ' + fmtMoney(disc, c) : '\u2014';
-    document.getElementById('prevTotal').textContent    = fmtMoney(tot, c);
-    document.getElementById('prevTotals').style.display = 'block';
-
-    if (p.invoice.notes) {
-      document.getElementById('prevNotesText').textContent = p.invoice.notes;
-      document.getElementById('prevNotes').style.display   = 'block';
-    }
+  // ── Clear form ────────────────────────────────────────────────────
+  function clearForm(){
+    if(!confirm('Clear the form and start a new invoice?'))return;
+    ['clientName','clientCompany','clientEmail','clientAddress','invNotes','invTax','invDiscount'].forEach(id=>{sv(id,'');});
+    document.getElementById('itemsBody').innerHTML='';
+    addRow(); setDefaults();
+    sv('invNumber',getNextNum());
+    updateLiveTotals(); liveUpdate();
   }
 
-  function clearForm() {
-    if (!confirm('Clear the form and start a new invoice?')) return;
-    ['clientName','clientCompany','clientEmail','clientAddress','invNotes','invTax','invDiscount'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.value = '';
-    });
-    document.getElementById('itemsBody').innerHTML = '';
-    addRow();
-    setDefaults();
-    document.getElementById('invNumber').value = getNextInvoiceNumber();
-    updateLiveTotals();
-    document.getElementById('prevTotals').style.display = 'none';
-    document.getElementById('prevNotes').style.display  = 'none';
-  }
-
-  window.addEventListener('load', () => {
-    loadMyDetails();
-    setDefaults();
-    addRow();
-    document.getElementById('itemsBody').addEventListener('input', updateLiveTotals);
-    document.getElementById('invTax')?.addEventListener('input', updateLiveTotals);
-    document.getElementById('invDiscount')?.addEventListener('input', updateLiveTotals);
+  // ── Init ──────────────────────────────────────────────────────────
+  window.addEventListener('load',()=>{
+    loadMyDetails(); setDefaults(); addRow();
+    updateLiveTotals(); liveUpdate();
   });
+
+  // Escape key closes modal
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 </script>
 </body>
 </html>
